@@ -1,19 +1,17 @@
-VERSI FULL FIXED - TANJUNG BINTANG JASTIP & KURIR
+TANJUNG BINTANG - ADMIN V1
 
-Paket ini mengganti 3 file sekaligus karena versi sebelumnya terjadi ketidaksesuaian
-antara index.html, styles.css, dan app.js.
+Ganti index.html di repository GitHub Pages dengan file index.html dari paket ini.
 
-Upload ke repository GitHub kurirtabin:
-- index.html
-- styles.css
-- app.js
+PENTING: akun admin harus punya dokumen Firestore:
+users/{UID_ADMIN}
+email: email admin
+role: admin
 
-Jangan sisakan file index/app lama dengan nama berbeda yang ikut dipanggil.
-
-Firebase project: kurirtabin
-Google Maps: memakai link Google Maps, tanpa Maps API key.
-
-Setelah upload:
-1. Commit changes.
-2. Tunggu GitHub Pages selesai deploy.
-3. Tekan Ctrl+Shift+R.
+Fitur:
+- Login customer -> tampilan customer
+- Login admin -> Dashboard Admin
+- Admin melihat semua order
+- Filter status
+- Ubah status order
+- Buka rute Google Maps
+- Customer tetap bisa membuat pesanan
