@@ -1,21 +1,35 @@
 <!doctype html>
 <html lang="id">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tanjung Bintang Jastip & Kurir</title>
-<link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#1769e0">
+  <title>Tanjung Bintang - Jastip & Kurir</title>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-<div id="app">
-<header class="topbar"><div><b>🛵 Tanjung Bintang</b><small>Jastip & Kurir</small></div><button id="authBtn">Masuk</button></header>
-<main id="view"></main>
-<nav class="bottom">
-<button data-view="home">⌂<span>Beranda</span></button>
-<button data-view="send">＋<span>Kirim</span></button>
-<button data-view="orders">▣<span>Pesanan</span></button>
-<button data-view="profile">◉<span>Profil</span></button>
-</nav>
-</div>
-<div id="modal" class="modal hidden"></div>
-<script type="module" src="app.js"></script>
-</body></html>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">🛵</div>
+      <div>
+        <div class="brand-title">Tanjung Bintang</div>
+        <div class="brand-subtitle">Jastip & Kurir</div>
+      </div>
+    </div>
+    <button id="authBtn" class="auth-btn">Masuk</button>
+  </header>
+
+  <main id="view"></main>
+
+  <nav class="bottom-nav" aria-label="Navigasi">
+    <button type="button" data-view="home" class="active"><span>⌂</span><b>Beranda</b></button>
+    <button type="button" data-view="send"><span>＋</span><b>Kirim</b></button>
+    <button type="button" data-view="orders"><span>▣</span><b>Pesanan</b></button>
+    <button type="button" data-view="profile"><span>◉</span><b>Profil</b></button>
+  </nav>
+
+  <div id="modal" class="modal-root"></div>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

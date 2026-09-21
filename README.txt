@@ -1,13 +1,19 @@
-PATCH TAMPILAN v2 - TANJUNG BINTANG JASTIP & KURIR
+VERSI FULL FIXED - TANJUNG BINTANG JASTIP & KURIR
 
-Upload 2 file berikut ke repository GitHub kurirtabin:
-1. app.js
-2. styles.css
+Paket ini mengganti 3 file sekaligus karena versi sebelumnya terjadi ketidaksesuaian
+antara index.html, styles.css, dan app.js.
 
-Jangan mengganti index.html.
+Upload ke repository GitHub kurirtabin:
+- index.html
+- styles.css
+- app.js
 
-Setelah commit:
-- buka website
-- tekan Ctrl + Shift + R
+Jangan sisakan file index/app lama dengan nama berbeda yang ikut dipanggil.
 
-Patch ini memperbaiki tampilan HTML polos dari patch sebelumnya dan mempertahankan Firebase + Google Maps.
+Firebase project: kurirtabin
+Google Maps: memakai link Google Maps, tanpa Maps API key.
+
+Setelah upload:
+1. Commit changes.
+2. Tunggu GitHub Pages selesai deploy.
+3. Tekan Ctrl+Shift+R.
