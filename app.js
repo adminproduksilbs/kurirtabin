@@ -29,3 +29,37 @@ function saveTariffs(){localStorage.setItem('tb_tariffs',JSON.stringify({t1:t1.v
 function downloadCSV(){const rows=[['Order','Customer','Jenis','Status','Total'],...state.orders.map(o=>[o.id,o.customer,o.type,o.status,o.total])];const csv=rows.map(r=>r.join(',')).join('\\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='laporan-tanjung-bintang.csv';a.click()}
 document.querySelectorAll('#itemType button,#weight button').forEach(btn=>btn.onclick=()=>{btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')});
 renderStores();renderOrders();renderActive();renderAdmin();
+
+
+/* Final location / Google Maps helpers */
+function openGoogleMaps(type){
+  const id = type === 'pickup' ? 'pickupLocation' : 'destinationLocation';
+  const value = document.getElementById(id)?.value?.trim() || '';
+  const query = value || 'Tanjung Bintang, Lampung Selatan, Lampung';
+  window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query), '_blank');
+}
+function showRoute(){
+  const pickup = document.getElementById('pickupLocation')?.value?.trim() || '';
+  const destination = document.getElementById('destinationLocation')?.value?.trim() || '';
+  if(!pickup || !destination){
+    const info=document.getElementById('routeInfo');
+    if(info) info.textContent='Isi lokasi pickup dan tujuan terlebih dahulu.';
+    return;
+  }
+  const p=document.getElementById('pickupPreview');
+  const d=document.getElementById('destinationPreview');
+  if(p) p.textContent=pickup;
+  if(d) d.textContent=destination;
+  const info=document.getElementById('routeInfo');
+  if(info) info.textContent='Rute siap dibuka di Google Maps.';
+  const url='https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(pickup)+'&destination='+encodeURIComponent(destination)+'&travelmode=driving';
+  window.open(url,'_blank');
+}
+document.addEventListener('input', function(e){
+  if(e.target && e.target.id==='pickupLocation'){
+    const p=document.getElementById('pickupPreview'); if(p) p.textContent=e.target.value || 'Belum dipilih';
+  }
+  if(e.target && e.target.id==='destinationLocation'){
+    const d=document.getElementById('destinationPreview'); if(d) d.textContent=e.target.value || 'Belum dipilih';
+  }
+});

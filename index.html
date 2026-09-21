@@ -143,5 +143,46 @@
   </main>
 </div>
 <script src="app.js"></script>
+
+<section class="location-card">
+  <div class="section-title-row">
+    <div>
+      <div class="eyebrow">LOKASI PENGIRIMAN</div>
+      <h3>Pilih lokasi di Google Maps</h3>
+    </div>
+    <span class="map-badge">Google Maps</span>
+  </div>
+
+  <div class="map-field">
+    <label>📍 Lokasi Pickup</label>
+    <div class="map-input-row">
+      <input id="pickupLocation" type="text" placeholder="Cari alamat / tempat pickup">
+      <button type="button" class="map-btn" onclick="openGoogleMaps('pickup')">Pilih di Maps</button>
+    </div>
+  </div>
+
+  <div class="map-field">
+    <label>🏁 Lokasi Tujuan</label>
+    <div class="map-input-row">
+      <input id="destinationLocation" type="text" placeholder="Cari alamat / tempat tujuan">
+      <button type="button" class="map-btn" onclick="openGoogleMaps('destination')">Pilih di Maps</button>
+    </div>
+  </div>
+
+  <div class="route-preview">
+    <div class="route-line">
+      <span class="dot pickup-dot"></span>
+      <div><small>Pickup</small><strong id="pickupPreview">Belum dipilih</strong></div>
+    </div>
+    <div class="route-line">
+      <span class="dot destination-dot"></span>
+      <div><small>Tujuan</small><strong id="destinationPreview">Belum dipilih</strong></div>
+    </div>
+  </div>
+
+  <button type="button" class="route-btn" onclick="showRoute()">🗺️ Lihat Rute & Buka Google Maps</button>
+  <div id="routeInfo" class="route-info">Pilih pickup dan tujuan untuk melihat rute.</div>
+</section>
+
 </body>
 </html>
