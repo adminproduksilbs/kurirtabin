@@ -1,126 +1,41 @@
-import "./firebase.js";
-const state={mode:'customer',customerPage:'customerHome',adminPage:'dashboard',orders:JSON.parse(localStorage.getItem('tb_orders')||'[]'),stores:[
-{id:1,name:'Toko Sinar Baru',cat:'Sembako & kebutuhan harian',icon:'🛒',distance:'1.2 km',products:[['Indomie Goreng',3000,'🍜'],['Susu Ultra',16000,'🥛'],['Minyak Goreng',18000,'🧴']]},
-{id:2,name:'Indomaret Tanjung Bintang',cat:'Minimarket',icon:'🏪',distance:'1.5 km',products:[['Air Mineral',4000,'💧'],['Roti',8000,'🍞'],['Snack',10000,'🍪']]},
-{id:3,name:'Toko Cantik',cat:'Kosmetik & Skincare',icon:'💄',distance:'1.8 km',products:[['Face Wash',25000,'🧴'],['Lip Tint',35000,'💄']]},
-{id:4,name:'Toko Fashion 88',cat:'Pakaian & Aksesori',icon:'👕',distance:'2.0 km',products:[['Kaos',45000,'👕'],['Topi',25000,'🧢']]}
-],cart:{},selectedStore:null};
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import {getFirestore,doc,setDoc,collection,addDoc,onSnapshot,query,where,serverTimestamp} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-function setMode(m){state.mode=m;document.getElementById('customerApp').classList.toggle('hidden',m!=='customer');document.getElementById('adminApp').classList.toggle('hidden',m!=='admin');document.getElementById('customerMode').classList.toggle('active',m==='customer');document.getElementById('adminMode').classList.toggle('active',m==='admin');if(m==='customer'){showCustomerPage(state.customerPage)}else adminPage(state.adminPage)}
-function showCustomerPage(id){document.querySelectorAll('#customerApp .page').forEach(p=>p.classList.remove('active'));const el=document.getElementById(id);if(el)el.classList.add('active');state.customerPage=id;renderOrders();renderStores();renderActive();if(id==='orderDetail'&&state.orders[0])renderOrderDetail(state.orders[0].id)}
-function adminPage(id){document.querySelectorAll('.admin-page').forEach(p=>p.classList.add('hidden'));const el=document.getElementById('admin-'+id);if(el)el.classList.remove('hidden');document.querySelectorAll('.side').forEach(x=>x.classList.remove('active'));const idx={dashboard:0,adminOrders:1,stores:2,customers:3,tariffs:4,reports:5,settings:6}[id];if(idx!==undefined)document.querySelectorAll('.side')[idx]?.classList.add('active');state.adminPage=id;document.getElementById('adminTitle').textContent={dashboard:'Dashboard',adminOrders:'Pesanan',stores:'Toko / Barang',customers:'Pelanggan',tariffs:'Tarif & Area',reports:'Laporan',settings:'Pengaturan',orderDetail:'Detail Pesanan'}[id]||'Dashboard';renderAdmin();}
-function money(n){return 'Rp '+Number(n).toLocaleString('id-ID')}
-function save(){localStorage.setItem('tb_orders',JSON.stringify(state.orders))}
-function renderActive(){const el=document.getElementById('activeOrderCard');if(!el)return;const o=state.orders.find(x=>x.status!=='Selesai'&&x.status!=='Dibatalkan');el.innerHTML=o?`<div class="active-card"><div class="order-icon">${o.type==='Jastip'?'🛍️':'🛵'}</div><div class="grow"><b>#${o.id}</b><small>${o.type} • ${o.status}</small></div><b class="price">${money(o.total)}</b><button onclick="openOrder('${o.id}')" style="background:none;color:#1769ff">›</button></div>`:`<div class="active-card"><div class="order-icon">📦</div><div class="grow"><b>Belum ada pesanan aktif</b><small>Pesan Kurir atau Jastip sekarang.</small></div></div>`}
-function renderStores(){const q=(document.getElementById('jastipSearch')?.value||'').toLowerCase();const list=document.getElementById('storeList');if(!list)return;list.innerHTML=state.stores.filter(s=>(s.name+s.cat).toLowerCase().includes(q)).map(s=>`<div class="store" onclick="openStore(${s.id})"><div class="store-img">${s.icon}</div><div class="grow"><b>${s.name}</b><small>${s.cat}</small><small>📍 ${s.distance} • Tanjung Bintang</small></div><span class="arrow">›</span></div>`).join('')}
-function openStore(id){state.selectedStore=state.stores.find(s=>s.id===id);state.cart={};document.getElementById('storeDetailName').textContent=state.selectedStore.name;document.getElementById('storeProducts').innerHTML=state.selectedStore.products.map((p,i)=>`<div class="product"><div class="product-icon">${p[2]}</div><div class="product-info"><b>${p[0]}</b><small>${money(p[1])}</small></div><div class="qty"><button onclick="changeQty(${i},-1)">−</button><b id="q${i}">0</b><button onclick="changeQty(${i},1)">+</button></div></div>`).join('');updateCart();showCustomerPage('storeDetail')}
-function changeQty(i,d){state.cart[i]=Math.max(0,(state.cart[i]||0)+d);document.getElementById('q'+i).textContent=state.cart[i];updateCart()}
-function updateCart(){let count=0,total=0;if(state.selectedStore)state.selectedStore.products.forEach((p,i)=>{count+=state.cart[i]||0;total+=(state.cart[i]||0)*p[1]});document.getElementById('cartSummary').textContent=count+' barang';document.getElementById('cartTotal').textContent=money(total)}
-function checkoutJastip(){let items=[],subtotal=0;if(!state.selectedStore)return;state.selectedStore.products.forEach((p,i)=>{if(state.cart[i]){items.push({name:p[0],qty:state.cart[i],price:p[1]});subtotal+=state.cart[i]*p[1]}});if(!items.length)return alert('Pilih minimal 1 barang.');const fee=5000,delivery=5000;const o={id:'TB'+Date.now().toString().slice(-6),type:'Jastip',status:'Pesanan Baru',customer:'Customer',phone:'-',store:state.selectedStore.name,items,subtotal,jastipFee:fee,deliveryFee:delivery,total:subtotal+fee+delivery,address:'Tanjung Bintang',createdAt:new Date().toLocaleString('id-ID')};state.orders.unshift(o);save();renderActive();renderAdmin();openOrder(o.id)}
-document.getElementById('deliveryFormEl').addEventListener('submit',e=>{e.preventDefault();const o={id:'TB'+Date.now().toString().slice(-6),type:'Kurir',status:'Pesanan Baru',customer:'Customer',phone:'-',pickup:document.getElementById('pickup').value,destination:document.getElementById('destination').value,note:document.getElementById('deliveryNote').value,subtotal:0,jastipFee:0,deliveryFee:10000,total:10000,address:document.getElementById('destination').value,createdAt:new Date().toLocaleString('id-ID')};state.orders.unshift(o);save();renderActive();renderAdmin();openOrder(o.id)})
-function openOrder(id){const o=state.orders.find(x=>x.id===id);if(!o)return;document.getElementById('detailOrderNo').textContent='#'+o.id;document.getElementById('orderDetailContent').innerHTML=orderHTML(o,false);showCustomerPage('orderDetail')}
-function orderHTML(o,admin){const statuses=['Pesanan Baru','Diterima','Sedang Diproses','Dalam Perjalanan','Selesai'];const idx=statuses.indexOf(o.status);return `<div class="order-box"><div style="display:flex;justify-content:space-between"><div><span class="status ${idx>=4?'done':idx>0?'process':'new'}">${o.type}</span><h3>#${o.id}</h3><small>${o.createdAt}</small></div><b class="price">${money(o.total)}</b></div></div><div class="order-box"><b>Informasi Customer</b><p><b>${o.customer}</b><br><small>${o.phone}</small></p>${o.store?`<b>Toko</b><p>🏪 ${o.store}</p>`:''}${o.pickup?`<div class="detail-row"><span>Pickup</span><b>${o.pickup}</b></div><div class="detail-row"><span>Tujuan</span><b>${o.destination}</b></div>`:''}</div>${o.items?.length?`<div class="order-box"><b>Barang</b>${o.items.map(x=>`<div class="detail-row"><span>${x.name} × ${x.qty}</span><b>${money(x.price*x.qty)}</b></div>`).join('')}<div class="detail-row"><span>Biaya Jastip</span><b>${money(o.jastipFee)}</b></div><div class="detail-row"><span>Ongkir</span><b>${money(o.deliveryFee)}</b></div><div class="total"><span>Total</span><span class="price">${money(o.total)}</span></div></div>`:''}<div class="order-box"><b>Status Pesanan</b><div class="timeline" style="margin-top:18px">${statuses.map((s,i)=>`<div class="tl ${i<idx?'done':i===idx?'current':''}"><b>${s}</b><small>${i<=idx?o.createdAt:''}</small></div>`).join('')}</div></div>${!admin?`<div class="map">🛵　🗺️　📍</div><button class="primary full" onclick="alert('Hubungi Admin melalui WhatsApp pada versi produksi.')">Hubungi Admin</button>`:''}`}
-function renderOrders(){const el=document.getElementById('orderHistory');if(!el)return;el.innerHTML=state.orders.length?state.orders.map(o=>`<div class="order-box" onclick="openOrder('${o.id}')" style="cursor:pointer"><div style="display:flex;align-items:center;gap:10px"><div class="order-icon">${o.type==='Jastip'?'🛍️':'🛵'}</div><div class="grow"><b>#${o.id}</b><small>${o.type} • ${o.createdAt}</small></div><div><span class="status ${o.status==='Selesai'?'done':'process'}">${o.status}</span><b class="price" style="display:block;margin-top:7px">${money(o.total)}</b></div></div></div>`).join(''):`<div class="card"><b>Belum ada riwayat.</b><small>Buat pesanan pertama Anda.</small></div>`}
-function renderAdmin(){const recent=document.getElementById('adminRecent');if(recent)recent.innerHTML=(state.orders.length?state.orders.slice(0,5):[{id:'TB000125',customer:'Budi',type:'Jastip',status:'Baru',total:31000},{id:'TB000124',customer:'Rina',type:'Kurir',status:'Diproses',total:15000}]).map(o=>`<div class="admin-order"><div class="grow"><b>#${o.id}</b><small>${o.customer||'Customer'} • ${o.type}</small></div><span class="status ${o.status==='Selesai'?'done':o.status==='Pesanan Baru'||o.status==='Baru'?'new':'process'}">${o.status}</span><b>${money(o.total)}</b><button onclick="openAdminOrder('${o.id}')">Detail</button></div>`).join('');const table=document.getElementById('adminOrderTable');if(table)table.innerHTML=`<table><thead><tr><th>Order</th><th>Customer</th><th>Jenis</th><th>Status</th><th>Total</th><th>Aksi</th></tr></thead><tbody>${state.orders.map(o=>`<tr><td><b>#${o.id}</b></td><td>${o.customer}</td><td>${o.type}</td><td><span class="status ${o.status==='Selesai'?'done':o.status==='Pesanan Baru'?'new':'process'}">${o.status}</span></td><td>${money(o.total)}</td><td><button class="primary small" onclick="openAdminOrder('${o.id}')">Detail</button></td></tr>`).join('')}</tbody></table>`;const stores=document.getElementById('adminStores');if(stores)stores.innerHTML=state.stores.map(s=>`<div class="store-admin"><div class="store-img">${s.icon}</div><div class="grow"><b>${s.name}</b><small>${s.cat} • ${s.products.length} barang</small></div><span class="status done">Aktif</span><button onclick="alert('Form edit toko dapat ditambahkan pada versi produksi.')">✎</button></div>`).join('')}
-function openAdminOrder(id){const o=state.orders.find(x=>x.id===id);if(!o)return;document.getElementById('adminDetailBox').innerHTML=`<div class="panel">${orderHTML(o,true)}<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="primary" onclick="updateStatus('${o.id}')">Update Status</button><button onclick="adminPage('adminOrders')" style="padding:11px 16px;border-radius:10px;background:#edf2f9">Kembali</button></div></div>`;adminPage('orderDetail')}
-function updateStatus(id){const o=state.orders.find(x=>x.id===id);const next={'Pesanan Baru':'Diterima','Diterima':'Sedang Diproses','Sedang Diproses':'Dalam Perjalanan','Dalam Perjalanan':'Selesai'}[o.status];if(next)o.status=next;save();openAdminOrder(id);renderActive()}
-function showAdminOrderForm(){alert('Form pesanan manual siap dikembangkan.')}
-function addStore(){const name=prompt('Nama toko baru?');if(name){state.stores.push({id:Date.now(),name,cat:'Toko sekitar Tanjung Bintang',icon:'🏪',distance:'-',products:[]});renderAdmin()}}
-function saveTariffs(){localStorage.setItem('tb_tariffs',JSON.stringify({t1:t1.value,t2:t2.value,t3:t3.value,jastipFee:jastipFee.value}));alert('Tarif tersimpan di browser demo.')}
-function downloadCSV(){const rows=[['Order','Customer','Jenis','Status','Total'],...state.orders.map(o=>[o.id,o.customer,o.type,o.status,o.total])];const csv=rows.map(r=>r.join(',')).join('\\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='laporan-tanjung-bintang.csv';a.click()}
-document.querySelectorAll('#itemType button,#weight button').forEach(btn=>btn.onclick=()=>{btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')});
-renderStores();renderOrders();renderActive();renderAdmin();
+const firebaseConfig={apiKey:"AIzaSyABpnRRv30zYTN0J_IReUgZPY88FSm9Omw",authDomain:"kurirtabin.firebaseapp.com",projectId:"kurirtabin",storageBucket:"kurirtabin.firebasestorage.app",messagingSenderId:"55763945350",appId:"1:55763945350:web:a06e1e51fea385aa494e07"};
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+let user=null,current="home",orders=[];
 
+const view=document.getElementById("view"),modal=document.getElementById("modal");
+const esc=s=>String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 
-/* Final location / Google Maps helpers */
-function openGoogleMaps(type){
-  const id = type === 'pickup' ? 'pickupLocation' : 'destinationLocation';
-  const value = document.getElementById(id)?.value?.trim() || '';
-  const query = value || 'Tanjung Bintang, Lampung Selatan, Lampung';
-  window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query), '_blank');
-}
-function showRoute(){
-  const pickup = document.getElementById('pickupLocation')?.value?.trim() || '';
-  const destination = document.getElementById('destinationLocation')?.value?.trim() || '';
-  if(!pickup || !destination){
-    const info=document.getElementById('routeInfo');
-    if(info) info.textContent='Isi lokasi pickup dan tujuan terlebih dahulu.';
-    return;
-  }
-  const p=document.getElementById('pickupPreview');
-  const d=document.getElementById('destinationPreview');
-  if(p) p.textContent=pickup;
-  if(d) d.textContent=destination;
-  const info=document.getElementById('routeInfo');
-  if(info) info.textContent='Rute siap dibuka di Google Maps.';
-  const url='https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(pickup)+'&destination='+encodeURIComponent(destination)+'&travelmode=driving';
-  window.open(url,'_blank');
-}
-document.addEventListener('input', function(e){
-  if(e.target && e.target.id==='pickupLocation'){
-    const p=document.getElementById('pickupPreview'); if(p) p.textContent=e.target.value || 'Belum dipilih';
-  }
-  if(e.target && e.target.id==='destinationLocation'){
-    const d=document.getElementById('destinationPreview'); if(d) d.textContent=e.target.value || 'Belum dipilih';
-  }
-});
+function nav(v){current=v;render()}
+document.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>nav(b.dataset.view));
+document.getElementById("authBtn").onclick=()=>user?logout():authModal();
 
-// Firebase online integration
-import {
-  auth, db, onAuthStateChanged, signInWithEmailAndPassword,
-  createUserWithEmailAndPassword, signOut, doc, setDoc,
-  addDoc, collection, serverTimestamp
-} from "./firebase.js";
+onAuthStateChanged(auth,u=>{user=u;document.getElementById("authBtn").textContent=u?"Keluar":"Masuk";listenOrders();render()});
 
-let currentFirebaseUser = null;
+function home(){return `<div class="page"><section class="hero"><h1>Kirim & Jastip lebih mudah</h1><p>Pesan kurir lokal Tanjung Bintang langsung dari HP.</p><button class="btn" onclick="navSend()">Kirim Barang Sekarang</button></section><div class="grid"><button class="tile" onclick="navSend()">📦<b>Kirim Barang</b><small>Pickup ke tujuan</small></button><button class="tile" onclick="nav('orders')">📋<b>Pesanan Saya</b><small>Lihat status</small></button><button class="tile" onclick="openMaps()">🗺️<b>Google Maps</b><small>Cari lokasi</small></button><button class="tile" onclick="nav('profile')">👤<b>Profil</b><small>Akun saya</small></button></div></div>`}
+function send(){return `<div class="page"><h2>Kirim Barang</h2><div class="card">
+<label class="label">Lokasi Pickup</label><div class="row"><input id="pickup" class="input" placeholder="Contoh: Toko ABC, Tanjung Bintang"><button class="btn" onclick="mapsField('pickup')">Maps</button></div>
+<label class="label">Lokasi Tujuan</label><div class="row"><input id="dest" class="input" placeholder="Alamat tujuan"><button class="btn" onclick="mapsField('dest')">Maps</button></div>
+<div class="mapbox">📍 Pickup → 🛵 Kurir → 🏁 Tujuan<br><span class="muted">Rute dibuka melalui Google Maps.</span></div>
+<label class="label">Barang / Catatan</label><textarea id="note" class="input" rows="3" placeholder="Isi barang dan catatan"></textarea>
+<button class="btn" style="width:100%" onclick="createOrder()">Buat Pesanan</button></div></div>`}
+function ordersPage(){return `<div class="page"><h2>Pesanan Saya</h2>${user?orders.map(o=>`<div class="card order"><b>${esc(o.id?.slice(-6)||"Pesanan")}</b><span class="status">${esc(o.status||"baru")}</span><p>📍 ${esc(o.pickup)}</p><p>🏁 ${esc(o.destination)}</p><button class="btn" onclick="route('${encodeURIComponent(o.pickup)}','${encodeURIComponent(o.destination)}')">Lihat Rute</button></div>`).join("")||'<div class="card">Belum ada pesanan.</div>':'<div class="card">Silakan masuk untuk melihat pesanan.</div>'}</div>`}
+function profile(){return `<div class="page"><h2>Profil</h2><div class="card">${user?`<b>${esc(user.email)}</b><p class="muted">Akun Customer</p><button class="btn danger" onclick="logout()">Keluar</button>`:`<p>Anda belum masuk.</p><button class="btn" onclick="authModal()">Masuk / Daftar</button>`}</div></div>`}
+function render(){view.innerHTML=current==="home"?home():current==="send"?send():current==="orders"?ordersPage():profile();document.querySelectorAll("[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===current))}
+window.nav=nav;window.navSend=()=>nav("send");
 
-onAuthStateChanged(auth, async (user) => {
-  currentFirebaseUser = user || null;
-  const status = document.getElementById("firebaseAuthStatus");
-  if (status) status.textContent = user ? `Masuk sebagai ${user.email}` : "Belum masuk";
-});
+function authModal(){modal.classList.remove("hidden");modal.innerHTML=`<div class="modalbox"><button class="close" onclick="closeModal()">✕</button><h2>Masuk / Daftar</h2><input id="email" class="input" type="email" placeholder="Email"><input id="pass" class="input" type="password" placeholder="Password"><div class="row"><button class="btn" onclick="login()">Masuk</button><button class="btn" onclick="register()">Daftar</button></div><p id="authMsg" class="muted"></p></div>`}
+window.closeModal=()=>modal.classList.add("hidden");
+window.login=async()=>{try{await signInWithEmailAndPassword(auth,email.value,pass.value);closeModal()}catch(e){authMsg.textContent="Gagal masuk: "+e.code}};
+window.register=async()=>{try{const c=await createUserWithEmailAndPassword(auth,email.value,pass.value);await setDoc(doc(db,"users",c.user.uid),{email:c.user.email,role:"customer",createdAt:serverTimestamp()});closeModal()}catch(e){authMsg.textContent="Gagal daftar: "+e.code}};
+window.logout=()=>signOut(auth);
 
-window.firebaseLogin = async function(){
-  const email = document.getElementById("fbEmail")?.value.trim();
-  const password = document.getElementById("fbPassword")?.value;
-  const status = document.getElementById("firebaseAuthStatus");
-  if(!email || !password){ if(status) status.textContent="Email dan password wajib diisi."; return; }
-  try{
-    await signInWithEmailAndPassword(auth,email,password);
-    if(status) status.textContent="Berhasil masuk.";
-  }catch(e){
-    if(status) status.textContent="Gagal masuk: " + (e.code || e.message);
-  }
-};
-
-window.firebaseRegister = async function(){
-  const email = document.getElementById("fbEmail")?.value.trim();
-  const password = document.getElementById("fbPassword")?.value;
-  const status = document.getElementById("firebaseAuthStatus");
-  if(!email || !password){ if(status) status.textContent="Email dan password wajib diisi."; return; }
-  if(password.length < 6){ if(status) status.textContent="Password minimal 6 karakter."; return; }
-  try{
-    const cred = await createUserWithEmailAndPassword(auth,email,password);
-    await setDoc(doc(db,"users",cred.user.uid),{
-      email, role:"customer", createdAt:serverTimestamp()
-    });
-    if(status) status.textContent="Akun berhasil dibuat.";
-  }catch(e){
-    if(status) status.textContent="Gagal daftar: " + (e.code || e.message);
-  }
-};
-
-window.firebaseLogout = async function(){
-  await signOut(auth);
-};
-
-window.saveOnlineOrder = async function(order){
-  if(!currentFirebaseUser) throw new Error("Silakan login terlebih dahulu.");
-  return await addDoc(collection(db,"orders"),{
-    ...order,
-    customerUid: currentFirebaseUser.uid,
-    customerEmail: currentFirebaseUser.email,
-    status:"baru",
-    createdAt:serverTimestamp()
-  });
-};
+function listenOrders(){if(!user){orders=[];return}onSnapshot(query(collection(db,"orders"),where("customerUid","==",user.uid)),s=>{orders=s.docs.map(d=>({id:d.id,...d.data()}));if(current==="orders")render()})}
+window.createOrder=async()=>{if(!user){authModal();return}const p=document.getElementById("pickup").value.trim(),d=document.getElementById("dest").value.trim(),n=document.getElementById("note").value.trim();if(!p||!d){alert("Pickup dan tujuan wajib diisi.");return}await addDoc(collection(db,"orders"),{customerUid:user.uid,customerEmail:user.email,pickup:p,destination:d,note:n,status:"baru",createdAt:serverTimestamp()});alert("Pesanan berhasil dibuat.");nav("orders")};
+window.mapsField=t=>{const el=document.getElementById(t);const q=el?.value.trim()||"Tanjung Bintang, Lampung Selatan";openMaps(q)};
+window.openMaps=q=>window.open("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q||"Tanjung Bintang, Lampung Selatan"),"_blank");
+window.route=(p,d)=>window.open("https://www.google.com/maps/dir/?api=1&origin="+p+"&destination="+d+"&travelmode=driving","_blank");
+render();

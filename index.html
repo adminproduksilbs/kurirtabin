@@ -1,204 +1,21 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#1769ff">
-  <title>Tanjung Bintang Jastip & Kurir</title>
-  <link rel="stylesheet" href="styles.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tanjung Bintang Jastip & Kurir</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div id="app">
-  <div class="topbar">
-    <div class="brand-mini"><span class="brand-mark">🛵</span><div><b>Tanjung Bintang</b><small>Jastip & Kurir</small></div></div>
-    <div class="mode-switch">
-      <button id="customerMode" class="mode active" onclick="setMode('customer')">Customer</button>
-      <button id="adminMode" class="mode" onclick="setMode('admin')">Admin</button>
-    </div>
-  </div>
-
-  <main id="customerApp" class="shell">
-    <section id="customerHome" class="page active">
-      <div class="mobile-header">
-        <div><span class="pin">📍</span> <b>Tanjung Bintang</b><small>Lampung Selatan</small></div>
-        <div class="avatar">A</div>
-      </div>
-      <div class="hero">
-        <div>
-          <span class="eyebrow">MUDAH • CEPAT • TERPERCAYA</span>
-          <h1>Mau pesan apa<br>hari ini?</h1>
-          <p>Kirim barang atau titip belanja di area Tanjung Bintang.</p>
-        </div>
-        <div class="hero-art">🛵</div>
-      </div>
-      <div class="search">🔎 <input placeholder="Cari toko, barang, atau layanan..."></div>
-      <div class="service-grid">
-        <button class="service blue" onclick="showCustomerPage('deliveryForm')"><span>🛵</span><b>Kirim Barang</b><small>Kirim dari satu lokasi ke lokasi lain</small></button>
-        <button class="service pink" onclick="showCustomerPage('jastip')"><span>🛍️</span><b>Jastip</b><small>Titip beli apa saja, kami bantu belikan</small></button>
-      </div>
-      <div class="section-title"><b>Pesanan Aktif</b><button onclick="showCustomerPage('orders')">Lihat Semua →</button></div>
-      <div id="activeOrderCard"></div>
-      <div class="section-title"><b>Jastip Populer</b><button onclick="showCustomerPage('jastip')">Lihat Semua →</button></div>
-      <div class="chips">
-        <button onclick="showCustomerPage('jastip')">🍜 Makanan</button><button onclick="showCustomerPage('jastip')">🛒 Sembako</button>
-        <button onclick="showCustomerPage('jastip')">💄 Kosmetik</button><button onclick="showCustomerPage('jastip')">👕 Fashion</button><button onclick="showCustomerPage('jastip')">••• Lainnya</button>
-      </div>
-      <div class="promo">🎁 <div><b>Jastip mudah di Tanjung Bintang</b><small>Pesan lewat web, kami yang belikan dan antar.</small></div></div>
-    </section>
-
-    <section id="deliveryForm" class="page">
-      <div class="page-head"><button onclick="showCustomerPage('customerHome')">←</button><div><b>Kirim Barang</b><small>Pesanan kurir</small></div></div>
-      <div class="steps"><span class="done">1 Detail</span><i></i><span>2 Konfirmasi</span><i></i><span>3 Pembayaran</span></div>
-      <form id="deliveryFormEl" class="card form">
-        <label>📍 Lokasi Jemput</label><div class="input-row"><input id="pickup" required placeholder="Contoh: Jl. Melati No. 5, Tanjung Bintang">📍</div>
-        <label>📍 Lokasi Tujuan</label><div class="input-row"><input id="destination" required placeholder="Contoh: Jl. Kenanga No. 12, Tanjung Bintang">📍</div>
-        <label>Detail Barang</label>
-        <div class="choice-row" id="itemType"><button type="button" class="selected">📦 Paket</button><button type="button">🍜 Makanan</button><button type="button">📄 Dokumen</button><button type="button">Lainnya</button></div>
-        <label>Perkiraan Berat</label>
-        <div class="choice-row" id="weight"><button type="button" class="selected">＜1 kg</button><button type="button">1–5 kg</button><button type="button">＞5 kg</button></div>
-        <label>Catatan <em>(opsional)</em></label><textarea id="deliveryNote" placeholder="Contoh: jangan dibalik, barang mudah pecah"></textarea>
-        <div class="estimate"><span>ℹ️ Estimasi biaya<br><small>Ongkir dalam area Tanjung Bintang</small></span><b id="deliveryPrice">Rp 10.000</b></div>
-        <button class="primary full" type="submit">Lanjutkan →</button>
-      </form>
-    </section>
-
-    <section id="jastip" class="page">
-      <div class="page-head"><button onclick="showCustomerPage('customerHome')">←</button><div><b>Jastip Tanjung Bintang</b><small>Titip beli, kami bantu belikan</small></div></div>
-      <div class="search"><span>🔎</span><input id="jastipSearch" placeholder="Cari toko atau barang..." oninput="renderStores()"></div>
-      <div class="banner">🛍️ <div><b>Titip beli apa saja.</b><small>Belanja dari toko sekitar Tanjung Bintang.</small></div></div>
-      <div class="chips">
-        <button>🍜 Makanan</button><button>🛒 Sembako</button><button>💄 Kosmetik</button><button>👕 Fashion</button>
-      </div>
-      <div class="section-title"><b>Toko Populer</b><span class="muted">Tanjung Bintang</span></div>
-      <div id="storeList" class="store-list"></div>
-    </section>
-
-    <section id="storeDetail" class="page">
-      <div class="page-head"><button onclick="showCustomerPage('jastip')">←</button><div><b id="storeDetailName">Toko</b><small>Tambah barang jastip</small></div></div>
-      <div id="storeProducts"></div>
-      <div class="cartbar"><span id="cartSummary">0 barang</span><b id="cartTotal">Rp 0</b><button class="primary" onclick="checkoutJastip()">Lanjutkan</button></div>
-    </section>
-
-    <section id="orderDetail" class="page">
-      <div class="page-head"><button onclick="showCustomerPage('orders')">←</button><div><b>Detail Pesanan</b><small id="detailOrderNo"></small></div></div>
-      <div id="orderDetailContent"></div>
-    </section>
-
-    <section id="orders" class="page">
-      <div class="page-head"><button onclick="showCustomerPage('customerHome')">←</button><div><b>Riwayat Pesanan</b><small>Semua pesanan Anda</small></div></div>
-      <div class="tabs"><button class="active">Semua</button><button>Kurir</button><button>Jastip</button></div>
-      <div id="orderHistory"></div>
-    </section>
-
-    <section id="profile" class="page">
-      <div class="page-head"><button onclick="showCustomerPage('customerHome')">←</button><div><b>Profil Saya</b><small>Akun customer</small></div></div>
-      <div class="profile-card"><div class="big-avatar">A</div><div><h3>Customer</h3><small>customer@example.com</small></div></div>
-      <div class="menu-list"><button>📍 <span>Alamat Saya</span> ›</button><button>💳 <span>Metode Pembayaran</span> ›</button><button>🔔 <span>Notifikasi</span> ›</button><button>💬 <span>Bantuan & Kontak</span> ›</button><button>ℹ️ <span>Tentang Aplikasi</span> ›</button></div>
-    </section>
-
-    <nav class="bottom-nav">
-      <button class="active" onclick="showCustomerPage('customerHome')">⌂<span>Beranda</span></button>
-      <button onclick="showCustomerPage('orders')">▣<span>Pesanan</span></button>
-      <button onclick="showCustomerPage('jastip')">🛍<span>Jastip</span></button>
-      <button>💬<span>Chat</span></button>
-      <button onclick="showCustomerPage('profile')">◉<span>Akun</span></button>
-    </nav>
-  </main>
-
-  <main id="adminApp" class="admin-shell hidden">
-    <aside class="sidebar">
-      <div class="admin-brand"><span>🛵</span><div><b>Tanjung Bintang</b><small>Jastip & Kurir</small></div></div>
-      <button class="side active" onclick="adminPage('dashboard')">▦ Dashboard</button>
-      <button class="side" onclick="adminPage('adminOrders')">▣ Pesanan <span class="badge">3</span></button>
-      <button class="side" onclick="adminPage('stores')">🏪 Toko / Barang</button>
-      <button class="side" onclick="adminPage('customers')">👥 Pelanggan</button>
-      <button class="side" onclick="adminPage('tariffs')">💰 Tarif & Area</button>
-      <button class="side" onclick="adminPage('reports')">📈 Laporan</button>
-      <button class="side" onclick="adminPage('settings')">⚙ Pengaturan</button>
-      <div class="sidebar-foot">Area layanan<br><b>Tanjung Bintang</b></div>
-    </aside>
-    <section class="admin-main">
-      <header class="admin-head"><div><span class="muted">Admin</span><h2 id="adminTitle">Dashboard</h2></div><div class="admin-user">👤 Admin <button onclick="setMode('customer')">Buka Customer</button></div></header>
-
-      <div id="admin-dashboard" class="admin-page">
-        <div class="kpis"><div><small>Total Pesanan</small><b id="kpiOrders">28</b><span>↑ 12% dari kemarin</span></div><div><small>Pesanan Baru</small><b>6</b><span>Perlu diproses</span></div><div><small>Diproses</small><b>8</b><span>Aktif</span></div><div><small>Selesai</small><b>14</b><span>↑ 20%</span></div></div>
-        <div class="kpis second"><div><small>Pendapatan Hari Ini</small><b>Rp 1.250.000</b><span>↑ 15% dari kemarin</span></div><div><small>Customer Aktif</small><b>24</b><span>Bulan ini</span></div></div>
-        <div class="admin-grid"><div class="panel"><div class="panel-title"><b>Pesanan 7 Hari Terakhir</b></div><div class="bars"><i style="height:42%"></i><i style="height:58%"></i><i style="height:50%"></i><i style="height:72%"></i><i style="height:65%"></i><i style="height:88%"></i><i style="height:76%"></i></div><div class="bar-labels"><span>15 Sep</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span></div></div><div class="panel"><div class="panel-title"><b>Pesanan Terbaru</b><button onclick="adminPage('adminOrders')">Lihat semua</button></div><div id="adminRecent"></div></div></div>
-      </div>
-
-      <div id="admin-adminOrders" class="admin-page hidden"><div class="panel"><div class="panel-title"><b>Daftar Pesanan</b><button class="primary small" onclick="showAdminOrderForm()">+ Pesanan Manual</button></div><div class="search"><span>🔎</span><input placeholder="Cari no. order, nama customer..."></div><div id="adminOrderTable" class="table-wrap"></div></div></div>
-
-      <div id="admin-orderDetail" class="admin-page hidden"><div id="adminDetailBox"></div></div>
-
-      <div id="admin-stores" class="admin-page hidden"><div class="panel"><div class="panel-title"><b>Toko / Barang</b><button class="primary small" onclick="addStore()">+ Tambah Toko</button></div><div id="adminStores"></div></div></div>
-
-      <div id="admin-customers" class="admin-page hidden"><div class="panel"><div class="panel-title"><b>Pelanggan</b></div><div class="table-wrap"><table><thead><tr><th>Nama</th><th>No. HP</th><th>Pesanan</th><th>Status</th></tr></thead><tbody><tr><td>Budi Santoso</td><td>0812 3456 7890</td><td>12</td><td><span class="status done">Aktif</span></td></tr><tr><td>Rina Lestari</td><td>0813 2222 1111</td><td>7</td><td><span class="status done">Aktif</span></td></tr><tr><td>Andi Pratama</td><td>0821 4444 3333</td><td>3</td><td><span class="status done">Aktif</span></td></tr></tbody></table></div></div></div>
-
-      <div id="admin-tariffs" class="admin-page hidden"><div class="panel"><div class="panel-title"><b>Tarif & Area</b><button class="primary small" onclick="saveTariffs()">Simpan</button></div><div class="tariff-form"><label>0–2 km <input id="t1" value="5000"></label><label>2–5 km <input id="t2" value="8000"></label><label>Lebih dari 5 km <input id="t3" value="12000"></label><label>Biaya Jastip <input id="jastipFee" value="5000"></label><label>Area Layanan <input value="Tanjung Bintang"></label></div></div></div>
-
-      <div id="admin-reports" class="admin-page hidden"><div class="kpis"><div><small>Total Order Bulan Ini</small><b>126</b></div><div><small>Kurir</small><b>54</b></div><div><small>Jastip</small><b>72</b></div><div><small>Pendapatan</small><b>Rp 5,8 jt</b></div></div><div class="panel"><div class="panel-title"><b>Laporan Transaksi</b><button class="primary small" onclick="downloadCSV()">⬇ Excel/CSV</button></div><p class="muted">Export sederhana tersedia pada versi demo. Pada versi produksi bisa ditambahkan Excel/PDF penuh.</p></div></div>
-
-      <div id="admin-settings" class="admin-page hidden"><div class="panel"><div class="panel-title"><b>Pengaturan</b></div><div class="tariff-form"><label>Nama Aplikasi <input value="Tanjung Bintang Jastip & Kurir"></label><label>Nomor WhatsApp Admin <input value="08xxxxxxxxxx"></label><label>Jam Operasional <input value="08:00 - 21:00"></label><label>Pesan Sambutan <textarea>Mudah, Cepat, Terpercaya di Tanjung Bintang.</textarea></label></div></div></div>
-    </section>
-  </main>
+<header class="topbar"><div><b>🛵 Tanjung Bintang</b><small>Jastip & Kurir</small></div><button id="authBtn">Masuk</button></header>
+<main id="view"></main>
+<nav class="bottom">
+<button data-view="home">⌂<span>Beranda</span></button>
+<button data-view="send">＋<span>Kirim</span></button>
+<button data-view="orders">▣<span>Pesanan</span></button>
+<button data-view="profile">◉<span>Profil</span></button>
+</nav>
 </div>
-<script src="app.js"></script>
-
-<section class="location-card">
-  <div class="section-title-row">
-    <div>
-      <div class="eyebrow">LOKASI PENGIRIMAN</div>
-      <h3>Pilih lokasi di Google Maps</h3>
-    </div>
-    <span class="map-badge">Google Maps</span>
-  </div>
-
-  <div class="map-field">
-    <label>📍 Lokasi Pickup</label>
-    <div class="map-input-row">
-      <input id="pickupLocation" type="text" placeholder="Cari alamat / tempat pickup">
-      <button type="button" class="map-btn" onclick="openGoogleMaps('pickup')">Pilih di Maps</button>
-    </div>
-  </div>
-
-  <div class="map-field">
-    <label>🏁 Lokasi Tujuan</label>
-    <div class="map-input-row">
-      <input id="destinationLocation" type="text" placeholder="Cari alamat / tempat tujuan">
-      <button type="button" class="map-btn" onclick="openGoogleMaps('destination')">Pilih di Maps</button>
-    </div>
-  </div>
-
-  <div class="route-preview">
-    <div class="route-line">
-      <span class="dot pickup-dot"></span>
-      <div><small>Pickup</small><strong id="pickupPreview">Belum dipilih</strong></div>
-    </div>
-    <div class="route-line">
-      <span class="dot destination-dot"></span>
-      <div><small>Tujuan</small><strong id="destinationPreview">Belum dipilih</strong></div>
-    </div>
-  </div>
-
-  <button type="button" class="route-btn" onclick="showRoute()">🗺️ Lihat Rute & Buka Google Maps</button>
-  <div id="routeInfo" class="route-info">Pilih pickup dan tujuan untuk melihat rute.</div>
-</section>
-
-
-<div id="firebaseAuthPanel" class="firebase-auth-panel" hidden>
-  <div class="firebase-auth-box">
-    <div class="eyebrow">AKUN ONLINE</div>
-    <h3>Masuk Tanjung Bintang Jastip</h3>
-    <input id="fbEmail" type="email" placeholder="Email">
-    <input id="fbPassword" type="password" placeholder="Password">
-    <div class="firebase-auth-actions">
-      <button type="button" onclick="firebaseLogin()">Masuk</button>
-      <button type="button" onclick="firebaseRegister()">Daftar</button>
-    </div>
-    <button type="button" class="firebase-logout" onclick="firebaseLogout()">Keluar</button>
-    <div id="firebaseAuthStatus"></div>
-  </div>
-</div>
-
-</body>
-</html>
+<div id="modal" class="modal hidden"></div>
+<script type="module" src="app.js"></script>
+</body></html>
