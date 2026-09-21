@@ -1,35 +1,87 @@
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#1769e0">
-  <title>Tanjung Bintang - Jastip & Kurir</title>
-  <link rel="stylesheet" href="./styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1769e0">
+<title>Tanjung Bintang - Jastip & Kurir</title>
+<style>
+*{box-sizing:border-box}
+:root{--blue:#1769e0;--blue2:#0f5bd7;--soft:#eaf2ff;--bg:#f4f7fb;--text:#10233f;--muted:#718096;--border:#e2e8f0;--danger:#dc3545}
+html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+body{padding-bottom:84px}
+button,input,textarea{font:inherit}button{cursor:pointer}
+.topbar{height:76px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:30}
+.brand{display:flex;align-items:center;gap:11px}.brand-icon{width:42px;height:42px;border-radius:13px;background:var(--soft);display:grid;place-items:center;font-size:22px}.brand-title{font-size:18px;font-weight:800}.brand-subtitle{font-size:13px;color:var(--muted);margin-top:3px}
+.auth-btn{border:0;border-radius:12px;background:var(--blue);color:#fff;padding:12px 21px;font-weight:800}.auth-btn:hover{background:var(--blue2)}
+.page{width:min(980px,100%);margin:auto;padding:30px 22px}
+.hero-card{min-height:265px;background:linear-gradient(135deg,#1769e0,#4f8ff0);color:#fff;border-radius:24px;padding:34px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 10px 30px rgba(20,50,90,.08);overflow:hidden;position:relative}
+.hero-card:after{content:"";position:absolute;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.08);right:-90px;top:-120px}
+.eyebrow{font-size:13px;color:var(--muted);font-weight:700}.hero-card .eyebrow{color:rgba(255,255,255,.82)}
+.hero-card h1{font-size:38px;margin:8px 0 10px;letter-spacing:-1px}.hero-card p{margin:0 0 22px;color:rgba(255,255,255,.9)}
+.hero-icon{font-size:76px;position:relative;z-index:2;margin-right:30px}
+.primary-btn,.secondary-btn,.danger-btn,.map-btn,.route-btn{border:0;border-radius:12px;padding:12px 16px;font-weight:800}
+.primary-btn{background:var(--blue);color:#fff}.hero-card .primary-btn{background:#fff;color:var(--blue)}.secondary-btn{background:#eef3f9;color:var(--text)}.danger-btn{background:#fff0f1;color:var(--danger)}.map-btn{background:var(--soft);color:var(--blue);white-space:nowrap}.route-btn{background:var(--soft);color:var(--blue);width:100%;margin-top:13px}.full{width:100%}
+.section-title{margin:28px 0 14px}.section-title h2{font-size:21px;margin:0}
+.service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.service-card{border:1px solid var(--border);background:#fff;border-radius:18px;padding:21px;text-align:left;color:var(--text);box-shadow:0 4px 18px rgba(20,45,80,.04);transition:.18s}.service-card:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(20,50,90,.08);border-color:#b8cff4}.service-card span{display:block;font-size:28px;margin-bottom:13px}.service-card b{display:block;margin-bottom:6px}.service-card small{color:var(--muted);line-height:1.4}
+.info-card,.form-card,.profile-card,.order-card,.empty-card{background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:0 4px 18px rgba(20,45,80,.04)}.info-card{padding:19px;margin-top:16px}.info-card p{margin:7px 0 0;color:var(--muted)}
+.page-head{display:flex;align-items:center;gap:13px;margin-bottom:20px}.page-head h1{font-size:29px;margin:4px 0}.back-btn{width:44px;height:44px;border:1px solid var(--border);background:#fff;border-radius:12px;font-size:21px}
+.form-card{padding:24px;max-width:720px}.form-card label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}.form-card input,.form-card textarea,.modal-card input{width:100%;border:1px solid #d8e0eb;border-radius:12px;padding:12px 13px;outline:none;margin-bottom:16px;color:var(--text);background:#fff}.form-card input:focus,.form-card textarea:focus,.modal-card input:focus{border-color:#78a5eb;box-shadow:0 0 0 3px var(--soft)}.form-card textarea{resize:vertical}.input-row{display:flex;gap:8px}.input-row input{flex:1}
+.orders-list{display:grid;gap:14px}.order-card{padding:19px}.order-top{display:flex;justify-content:space-between;align-items:center;gap:10px}.status{font-size:12px;font-weight:800;padding:6px 10px;border-radius:999px;background:#fff3cd;color:#8a6500}.route{display:grid;gap:8px;color:#52637b;margin:15px 0}.order-meta{font-size:13px;color:var(--muted);border-top:1px solid var(--border);padding-top:12px}.empty-card{text-align:center;padding:30px;color:var(--muted)}.empty-card b{display:block;color:var(--text);margin-bottom:7px}
+.profile-card{max-width:520px;padding:30px;text-align:center}.profile-avatar{width:70px;height:70px;border-radius:50%;background:var(--soft);display:grid;place-items:center;font-size:31px;margin:auto auto 15px}.profile-card h2{font-size:18px;margin:0 0 7px;word-break:break-word}.profile-card p{color:var(--muted);margin:0 0 22px}
+.bottom-nav{height:78px;position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);z-index:40}.bottom-nav button{border:0;background:transparent;color:#738097;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:12px}.bottom-nav button span{font-size:18px}.bottom-nav button.active{color:var(--blue)}
+.modal-root:empty{display:none}.modal-backdrop{position:fixed;inset:0;background:rgba(8,24,50,.48);display:grid;place-items:center;padding:18px;z-index:100}.modal-card{width:min(420px,100%);background:#fff;border-radius:20px;padding:25px;box-shadow:0 25px 70px rgba(0,0,0,.22);position:relative}.modal-card h2{margin:0 0 7px}.modal-card p{color:var(--muted);margin:0 0 20px}.modal-close{position:absolute;right:13px;top:9px;border:0;background:transparent;font-size:28px;color:#738097}.modal-card .secondary-btn{margin-top:9px}.auth-message{font-size:13px;color:var(--danger);margin-top:12px}
+.toast{position:fixed;left:50%;bottom:95px;transform:translateX(-50%);background:#10233f;color:#fff;padding:12px 17px;border-radius:12px;z-index:200;box-shadow:0 10px 30px rgba(20,50,90,.08);font-size:13px}
+@media(max-width:720px){.topbar{height:68px;padding:0 14px}.brand-title{font-size:16px}.brand-subtitle{font-size:12px}.auth-btn{padding:10px 15px}.page{padding:20px 14px}.hero-card{padding:25px;min-height:245px}.hero-card h1{font-size:31px}.hero-icon{font-size:52px;margin-right:0}.service-grid{grid-template-columns:1fr}.form-card{padding:19px}.page-head h1{font-size:25px}}
+</style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-icon">🛵</div>
-      <div>
-        <div class="brand-title">Tanjung Bintang</div>
-        <div class="brand-subtitle">Jastip & Kurir</div>
-      </div>
-    </div>
-    <button id="authBtn" class="auth-btn">Masuk</button>
-  </header>
+<header class="topbar">
+  <div class="brand"><div class="brand-icon">🛵</div><div><div class="brand-title">Tanjung Bintang</div><div class="brand-subtitle">Jastip & Kurir</div></div></div>
+  <button id="authBtn" class="auth-btn">Masuk</button>
+</header>
+<main id="view"></main>
+<nav class="bottom-nav">
+  <button data-view="home" class="active"><span>⌂</span><b>Beranda</b></button>
+  <button data-view="send"><span>＋</span><b>Kirim</b></button>
+  <button data-view="orders"><span>▣</span><b>Pesanan</b></button>
+  <button data-view="profile"><span>◉</span><b>Profil</b></button>
+</nav>
+<div id="modal" class="modal-root"></div>
 
-  <main id="view"></main>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import {getFirestore,doc,setDoc,getDoc,collection,addDoc,onSnapshot,query,where,serverTimestamp} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-  <nav class="bottom-nav" aria-label="Navigasi">
-    <button type="button" data-view="home" class="active"><span>⌂</span><b>Beranda</b></button>
-    <button type="button" data-view="send"><span>＋</span><b>Kirim</b></button>
-    <button type="button" data-view="orders"><span>▣</span><b>Pesanan</b></button>
-    <button type="button" data-view="profile"><span>◉</span><b>Profil</b></button>
-  </nav>
+const firebaseConfig={apiKey:"AIzaSyABpnRRv30zYTN0J_IReUgZPY88FSm9Omw",authDomain:"kurirtabin.firebaseapp.com",projectId:"kurirtabin",storageBucket:"kurirtabin.firebasestorage.app",messagingSenderId:"55763945350",appId:"1:55763945350:web:a06e1e51fea385aa494e07"};
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+let user=null,role="customer",view="home",stopOrders=null;
+const $=id=>document.getElementById(id);
+const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+const toast=m=>{const x=document.createElement("div");x.className="toast";x.textContent=m;document.body.appendChild(x);setTimeout(()=>x.remove(),2500)};
 
-  <div id="modal" class="modal-root"></div>
+function home(){return `<section class="page"><div class="hero-card"><div><div class="eyebrow">Tanjung Bintang</div><h1>Jastip & Kurir</h1><p>Kirim barang dan titip belanja dengan mudah.</p><button class="primary-btn" data-a="send">+ Kirim Barang</button></div><div class="hero-icon">🛵</div></div><div class="section-title"><h2>Layanan</h2></div><div class="service-grid"><button class="service-card" data-a="send"><span>📦</span><b>Kirim Barang</b><small>Pesan kurir untuk mengirim barang</small></button><button class="service-card" data-a="orders"><span>🧾</span><b>Pesanan Saya</b><small>Lihat status pesanan</small></button><button class="service-card" data-a="store"><span>🛍️</span><b>Jastip & Store</b><small>Belanja melalui layanan kami</small></button></div><div class="info-card"><b>📍 Area layanan</b><p>Tanjung Bintang dan area sekitarnya, Lampung Selatan.</p></div></section>`}
+function send(){return `<section class="page"><div class="page-head"><button class="back-btn" data-a="home">←</button><div><div class="eyebrow">Pesanan baru</div><h1>Kirim Barang</h1></div></div><div class="form-card"><label>Nama pengirim</label><input id="senderName" placeholder="Nama pengirim"><label>No. WhatsApp</label><input id="senderPhone" placeholder="08xxxxxxxxxx"><label>Lokasi pickup</label><div class="input-row"><input id="pickup" placeholder="Alamat pickup"><button class="map-btn" data-a="pickup">Maps</button></div><label>Lokasi tujuan</label><div class="input-row"><input id="destination" placeholder="Alamat tujuan"><button class="map-btn" data-a="destination">Maps</button></div><label>Nama penerima</label><input id="receiverName" placeholder="Nama penerima"><label>No. WhatsApp penerima</label><input id="receiverPhone" placeholder="08xxxxxxxxxx"><label>Detail barang</label><textarea id="itemDetail" rows="3" placeholder="Contoh: 1 dus frozen food"></textarea><label>Catatan</label><textarea id="note" rows="3" placeholder="Catatan tambahan"></textarea><button class="primary-btn full" data-a="submit">Buat Pesanan</button></div></section>`}
+function orders(){return `<section class="page"><div class="page-head"><div><div class="eyebrow">Riwayat</div><h1>Pesanan Saya</h1></div></div><div id="ordersList" class="orders-list"><div class="empty-card">Memuat pesanan...</div></div></section>`}
+function profile(){return `<section class="page"><div class="page-head"><div><div class="eyebrow">Akun</div><h1>Profil</h1></div></div><div class="profile-card"><div class="profile-avatar">👤</div><h2>${esc(user?.email||"Belum login")}</h2><p>${user?"Akun "+esc(role):"Silakan masuk untuk membuat pesanan."}</p>${user?'<button class="danger-btn full" data-a="logout">Keluar</button>':'<button class="primary-btn full" data-a="login">Masuk</button>'}</div></section>`}
 
-  <script type="module" src="./app.js"></script>
+function render(){const v=$("view");if(!v)return;v.innerHTML=view==="home"?home():view==="send"?send():view==="orders"?orders():profile();document.querySelectorAll(".bottom-nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));bind();if(view==="orders")loadOrders()}
+function bind(){
+  document.querySelectorAll("[data-view]").forEach(b=>{if(!b.dataset.bound){b.dataset.bound="1";b.onclick=()=>{view=b.dataset.view;render()}}});
+  document.querySelectorAll("[data-a]").forEach(b=>{if(b.dataset.bound){return}b.dataset.bound="1";b.onclick=async()=>{const a=b.dataset.a;if(a==="home"||a==="send"||a==="orders"){view=a;render()}else if(a==="login")showAuth();else if(a==="logout")await signOut(auth);else if(a==="store")toast("Store/Jastip akan kita lanjutkan berikutnya.");else if(a==="pickup"||a==="destination"){const val=$(a==="pickup"?"pickup":"destination")?.value.trim();if(val)window.open("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(val),"_blank");else toast("Isi lokasi terlebih dahulu.")}else if(a==="submit")createOrder()}})
+}
+async function createOrder(){
+  if(!user){showAuth();return}
+  const p=$("pickup")?.value.trim(),d=$("destination")?.value.trim();if(!p||!d){toast("Lokasi pickup dan tujuan wajib diisi.");return}
+  try{await addDoc(collection(db,"orders"),{customerId:user.uid,customerEmail:user.email||"",senderName:$("senderName")?.value.trim()||"",senderPhone:$("senderPhone")?.value.trim()||"",pickup:p,destination:d,receiverName:$("receiverName")?.value.trim()||"",receiverPhone:$("receiverPhone")?.value.trim()||"",itemDetail:$("itemDetail")?.value.trim()||"",note:$("note")?.value.trim()||"",status:"Menunggu",createdAt:serverTimestamp()});toast("Pesanan berhasil dibuat.");view="orders";render()}catch(e){console.error(e);toast("Gagal menyimpan pesanan. Cek Firestore Rules.")}}
+function showAuth(){const m=$("modal");m.innerHTML=`<div class="modal-backdrop" id="back"><div class="modal-card"><button class="modal-close" id="close">×</button><h2>Masuk</h2><p>Gunakan akun customer atau admin.</p><input id="email" type="email" placeholder="Email"><input id="password" type="password" placeholder="Password"><button class="primary-btn full" id="login">Masuk</button><button class="secondary-btn full" id="reg">Daftar akun baru</button><div id="msg" class="auth-message"></div></div></div>`;$("close").onclick=()=>m.innerHTML="";$("back").onclick=e=>{if(e.target.id==="back")m.innerHTML=""};$("login").onclick=async()=>{try{await signInWithEmailAndPassword(auth,$("email").value.trim(),$("password").value);m.innerHTML="";toast("Berhasil masuk")}catch(e){$("msg").textContent="Email atau password salah."}};$("reg").onclick=async()=>{const email=$("email").value.trim(),password=$("password").value;if(password.length<6){$("msg").textContent="Password minimal 6 karakter.";return}try{const c=await createUserWithEmailAndPassword(auth,email,password);await setDoc(doc(db,"users",c.user.uid),{email,role:"customer",createdAt:serverTimestamp()});m.innerHTML="";toast("Akun berhasil dibuat")}catch(e){$("msg").textContent=e.message||"Pendaftaran gagal."}}}
+async function loadRole(u){role="customer";try{const s=await getDoc(doc(db,"users",u.uid));if(s.exists())role=s.data().role||"customer"}catch(e){console.warn(e)}}
+function loadOrders(){const l=$("ordersList");if(!l)return;if(!user){l.innerHTML='<div class="empty-card"><b>Belum login</b><p>Masuk terlebih dahulu untuk melihat pesanan.</p><button class="primary-btn" data-a="login">Masuk</button></div>';bind();return}if(stopOrders)stopOrders();const q=query(collection(db,"orders"),where("customerId","==",user.uid));stopOrders=onSnapshot(q,s=>{const rows=[];s.forEach(x=>rows.push(x.data()));if(!rows.length){l.innerHTML='<div class="empty-card"><b>Belum ada pesanan</b><p>Pesanan Anda akan tampil di sini.</p></div>';return}l.innerHTML=rows.map(o=>`<article class="order-card"><div class="order-top"><b>${esc(o.itemDetail||"Pesanan kurir")}</b><span class="status">${esc(o.status||"Menunggu")}</span></div><div class="route"><div>📍 ${esc(o.pickup)}</div><div>📦 ${esc(o.destination)}</div></div><div class="order-meta">Penerima: ${esc(o.receiverName||"-")}</div><button class="route-btn" onclick="window.open('https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent('${esc(o.pickup)}')+'&destination='+encodeURIComponent('${esc(o.destination)}'),'_blank')">🗺️ Lihat rute</button></article>`).join("")},e=>{console.error(e);l.innerHTML='<div class="empty-card"><b>Pesanan belum dapat dimuat</b><p>Periksa Firestore Rules.</p></div>'})}
+
+$("authBtn").onclick=()=>user?signOut(auth):showAuth();
+onAuthStateChanged(auth,async u=>{user=u||null;if(u)await loadRole(u);else role="customer";$("authBtn").textContent=u?"Keluar":"Masuk";render()});
+render();
+</script>
 </body>
 </html>
