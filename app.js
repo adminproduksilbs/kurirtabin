@@ -1,3 +1,4 @@
+import "./firebase.js";
 const state={mode:'customer',customerPage:'customerHome',adminPage:'dashboard',orders:JSON.parse(localStorage.getItem('tb_orders')||'[]'),stores:[
 {id:1,name:'Toko Sinar Baru',cat:'Sembako & kebutuhan harian',icon:'🛒',distance:'1.2 km',products:[['Indomie Goreng',3000,'🍜'],['Susu Ultra',16000,'🥛'],['Minyak Goreng',18000,'🧴']]},
 {id:2,name:'Indomaret Tanjung Bintang',cat:'Minimarket',icon:'🏪',distance:'1.5 km',products:[['Air Mineral',4000,'💧'],['Roti',8000,'🍞'],['Snack',10000,'🍪']]},
@@ -63,3 +64,63 @@ document.addEventListener('input', function(e){
     const d=document.getElementById('destinationPreview'); if(d) d.textContent=e.target.value || 'Belum dipilih';
   }
 });
+
+// Firebase online integration
+import {
+  auth, db, onAuthStateChanged, signInWithEmailAndPassword,
+  createUserWithEmailAndPassword, signOut, doc, setDoc,
+  addDoc, collection, serverTimestamp
+} from "./firebase.js";
+
+let currentFirebaseUser = null;
+
+onAuthStateChanged(auth, async (user) => {
+  currentFirebaseUser = user || null;
+  const status = document.getElementById("firebaseAuthStatus");
+  if (status) status.textContent = user ? `Masuk sebagai ${user.email}` : "Belum masuk";
+});
+
+window.firebaseLogin = async function(){
+  const email = document.getElementById("fbEmail")?.value.trim();
+  const password = document.getElementById("fbPassword")?.value;
+  const status = document.getElementById("firebaseAuthStatus");
+  if(!email || !password){ if(status) status.textContent="Email dan password wajib diisi."; return; }
+  try{
+    await signInWithEmailAndPassword(auth,email,password);
+    if(status) status.textContent="Berhasil masuk.";
+  }catch(e){
+    if(status) status.textContent="Gagal masuk: " + (e.code || e.message);
+  }
+};
+
+window.firebaseRegister = async function(){
+  const email = document.getElementById("fbEmail")?.value.trim();
+  const password = document.getElementById("fbPassword")?.value;
+  const status = document.getElementById("firebaseAuthStatus");
+  if(!email || !password){ if(status) status.textContent="Email dan password wajib diisi."; return; }
+  if(password.length < 6){ if(status) status.textContent="Password minimal 6 karakter."; return; }
+  try{
+    const cred = await createUserWithEmailAndPassword(auth,email,password);
+    await setDoc(doc(db,"users",cred.user.uid),{
+      email, role:"customer", createdAt:serverTimestamp()
+    });
+    if(status) status.textContent="Akun berhasil dibuat.";
+  }catch(e){
+    if(status) status.textContent="Gagal daftar: " + (e.code || e.message);
+  }
+};
+
+window.firebaseLogout = async function(){
+  await signOut(auth);
+};
+
+window.saveOnlineOrder = async function(order){
+  if(!currentFirebaseUser) throw new Error("Silakan login terlebih dahulu.");
+  return await addDoc(collection(db,"orders"),{
+    ...order,
+    customerUid: currentFirebaseUser.uid,
+    customerEmail: currentFirebaseUser.email,
+    status:"baru",
+    createdAt:serverTimestamp()
+  });
+};

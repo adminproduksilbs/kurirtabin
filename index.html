@@ -184,5 +184,21 @@
   <div id="routeInfo" class="route-info">Pilih pickup dan tujuan untuk melihat rute.</div>
 </section>
 
+
+<div id="firebaseAuthPanel" class="firebase-auth-panel" hidden>
+  <div class="firebase-auth-box">
+    <div class="eyebrow">AKUN ONLINE</div>
+    <h3>Masuk Tanjung Bintang Jastip</h3>
+    <input id="fbEmail" type="email" placeholder="Email">
+    <input id="fbPassword" type="password" placeholder="Password">
+    <div class="firebase-auth-actions">
+      <button type="button" onclick="firebaseLogin()">Masuk</button>
+      <button type="button" onclick="firebaseRegister()">Daftar</button>
+    </div>
+    <button type="button" class="firebase-logout" onclick="firebaseLogout()">Keluar</button>
+    <div id="firebaseAuthStatus"></div>
+  </div>
+</div>
+
 </body>
 </html>

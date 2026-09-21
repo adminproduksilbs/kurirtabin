@@ -30,3 +30,13 @@ VERSI FINAL - GOOGLE MAPS
 - Tombol Lihat Rute membuka rute pickup -> tujuan di Google Maps.
 - Struktur siap dikembangkan ke Google Maps JavaScript API + Firebase untuk pin interaktif, jarak/ETA otomatis, dan tracking kurir realtime.
 - Untuk API key Google Maps dan tracking realtime, konfigurasi Firebase + Google Maps API masih diperlukan.
+
+
+FIREBASE ONLINE
+Project Firebase: kurirtabin
+- Firebase Authentication email/password sudah disiapkan.
+- Koleksi users dibuat saat customer mendaftar.
+- Fungsi saveOnlineOrder() siap menyimpan pesanan ke Firestore koleksi orders.
+- Buat Authentication > Sign-in method > Email/Password di Firebase Console.
+- Untuk keamanan produksi, pasang Firestore Security Rules agar customer hanya bisa membaca/menulis data miliknya dan admin berdasarkan role.
+- Google Maps API key belum dimasukkan; fitur rute saat ini menggunakan URL Google Maps tanpa API key.

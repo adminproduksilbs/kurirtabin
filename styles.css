@@ -21,3 +21,15 @@
 .route-line small{display:block;color:#667085;font-size:11px}.route-line strong{display:block;font-size:13px;margin-top:2px}
 .route-info{margin-top:10px;font-size:12px;color:#667085;text-align:center}
 @media(max-width:560px){.map-input-row{display:block}.map-input-row input{width:100%;box-sizing:border-box}.map-btn{width:100%;margin-top:8px}.location-card{padding:15px}}
+
+.firebase-auth-panel{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9999}
+.firebase-auth-panel[hidden]{display:none}
+.firebase-auth-box{width:min(420px,100%);background:#fff;border-radius:22px;padding:22px;box-shadow:0 20px 70px rgba(0,0,0,.2)}
+.firebase-auth-box h3{margin:4px 0 18px}
+.firebase-auth-box input{display:block;width:100%;box-sizing:border-box;margin:9px 0;padding:13px;border:1px solid #d8dee8;border-radius:12px}
+.firebase-auth-actions{display:flex;gap:8px;margin-top:12px}
+.firebase-auth-actions button,.firebase-logout{border:0;border-radius:12px;padding:12px 16px;font-weight:800;cursor:pointer}
+.firebase-auth-actions button:first-child{background:#1f6feb;color:#fff}
+.firebase-auth-actions button:last-child{background:#eef2f7}
+.firebase-logout{width:100%;margin-top:9px;background:#f3f4f6}
+#firebaseAuthStatus{font-size:12px;color:#667085;margin-top:10px;min-height:16px}
