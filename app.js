@@ -1,235 +1,38 @@
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
+import { getAuth,onAuthStateChanged,signInWithEmailAndPassword,createUserWithEmailAndPassword,signOut } from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
+import { getFirestore,doc,getDoc,setDoc,addDoc,collection,query,where,onSnapshot,serverTimestamp,updateDoc } from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js';
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import {
-  getAuth,onAuthStateChanged,signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,signOut
-} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-import {
-  getFirestore,doc,setDoc,getDoc,collection,addDoc,onSnapshot,
-  query,where,serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
-
-const firebaseConfig={
-  apiKey:"AIzaSyABpnRRv30zYTN0J_IReUgZPY88FSm9Omw",
-  authDomain:"kurirtabin.firebaseapp.com",
-  projectId:"kurirtabin",
-  storageBucket:"kurirtabin.firebasestorage.app",
-  messagingSenderId:"55763945350",
-  appId:"1:55763945350:web:a06e1e51fea385aa494e07"
-};
-
-const firebaseApp=initializeApp(firebaseConfig);
-const auth=getAuth(firebaseApp);
-const db=getFirestore(firebaseApp);
-
-let currentUser=null;
-let currentRole="customer";
-let currentView="home";
-let stopOrders=null;
-
-const $=id=>document.getElementById(id);
-const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-
-function toast(message){
-  const old=document.querySelector(".toast"); if(old) old.remove();
-  const el=document.createElement("div"); el.className="toast"; el.textContent=message;
-  document.body.appendChild(el); setTimeout(()=>el.remove(),2800);
-}
-
-function setView(v){currentView=v;render();}
-
-function render(){
-  const view=$("view");
-  if(!view)return;
-  if(currentView==="home")view.innerHTML=homeHTML();
-  else if(currentView==="send")view.innerHTML=sendHTML();
-  else if(currentView==="orders")view.innerHTML=ordersHTML();
-  else view.innerHTML=profileHTML();
-
-  document.querySelectorAll(".bottom-nav [data-view]").forEach(b=>{
-    b.classList.toggle("active",b.dataset.view===currentView);
-  });
-  bindPage();
-}
-
-function homeHTML(){
-  return `<section class="page">
-    <div class="hero-card">
-      <div>
-        <div class="eyebrow">Tanjung Bintang</div>
-        <h1>Jastip & Kurir</h1>
-        <p>Kirim barang dan titip belanja dengan mudah.</p>
-        <button class="primary-btn" data-action="send">+ Kirim Barang</button>
-      </div>
-      <div class="hero-icon">🛵</div>
-    </div>
-    <div class="section-title"><h2>Layanan</h2></div>
-    <div class="service-grid">
-      <button class="service-card" data-action="send"><span>📦</span><b>Kirim Barang</b><small>Pesan kurir untuk mengirim barang</small></button>
-      <button class="service-card" data-action="orders"><span>🧾</span><b>Pesanan Saya</b><small>Lihat status pesanan</small></button>
-      <button class="service-card" data-action="store"><span>🛍️</span><b>Jastip & Store</b><small>Belanja melalui layanan kami</small></button>
-    </div>
-    <div class="info-card"><b>📍 Area layanan</b><p>Tanjung Bintang dan area sekitarnya, Lampung Selatan.</p></div>
-  </section>`;
-}
-
-function sendHTML(){
-  return `<section class="page">
-    <div class="page-head"><button class="back-btn" data-action="home">←</button><div><div class="eyebrow">Pesanan baru</div><h1>Kirim Barang</h1></div></div>
-    <div class="form-card">
-      <label>Nama pengirim</label><input id="senderName" placeholder="Nama pengirim">
-      <label>No. WhatsApp</label><input id="senderPhone" inputmode="tel" placeholder="08xxxxxxxxxx">
-      <label>Lokasi pickup</label><div class="input-row"><input id="pickup" placeholder="Alamat pickup"><button class="map-btn" data-action="pickupMap">Maps</button></div>
-      <label>Lokasi tujuan</label><div class="input-row"><input id="destination" placeholder="Alamat tujuan"><button class="map-btn" data-action="destinationMap">Maps</button></div>
-      <label>Nama penerima</label><input id="receiverName" placeholder="Nama penerima">
-      <label>No. WhatsApp penerima</label><input id="receiverPhone" inputmode="tel" placeholder="08xxxxxxxxxx">
-      <label>Detail barang</label><textarea id="itemDetail" rows="3" placeholder="Contoh: 1 dus frozen food"></textarea>
-      <label>Catatan</label><textarea id="note" rows="3" placeholder="Catatan tambahan (opsional)"></textarea>
-      <button class="primary-btn full" data-action="submit">Buat Pesanan</button>
-    </div>
-  </section>`;
-}
-
-function ordersHTML(){
-  return `<section class="page"><div class="page-head"><div><div class="eyebrow">Riwayat</div><h1>Pesanan Saya</h1></div></div>
-  <div id="ordersList" class="orders-list"><div class="empty-card">Memuat pesanan...</div></div></section>`;
-}
-
-function profileHTML(){
-  return `<section class="page"><div class="page-head"><div><div class="eyebrow">Akun</div><h1>Profil</h1></div></div>
-  <div class="profile-card"><div class="profile-avatar">👤</div>
-  <h2>${esc(currentUser?.email||"Belum login")}</h2>
-  <p>${currentUser?`Akun ${esc(currentRole)}`:"Silakan masuk untuk membuat pesanan."}</p>
-  ${currentUser?`<button class="danger-btn full" data-action="logout">Keluar</button>`:`<button class="primary-btn full" data-action="login">Masuk</button>`}
-  </div></section>`;
-}
-
-function bindPage(){
-  document.querySelectorAll("[data-action]").forEach(el=>{
-    if(el.dataset.bound)return; el.dataset.bound="1";
-    el.addEventListener("click",async e=>{
-      e.preventDefault();
-      const a=el.dataset.action;
-      if(a==="home"||a==="send"||a==="orders")setView(a);
-      if(a==="login")showAuth();
-      if(a==="logout")await signOut(auth);
-      if(a==="store")toast("Fitur Store/Jastip akan kita lanjutkan setelah aplikasi utama stabil.");
-      if(a==="pickupMap")openMap("pickup");
-      if(a==="destinationMap")openMap("destination");
-      if(a==="submit")await createOrder();
-    });
-  });
-  if(currentView==="orders")watchOrders();
-}
-
-function openMap(type){
-  const value=$(type)?.value?.trim();
-  if(!value){toast("Isi lokasi terlebih dahulu.");return;}
-  window.open("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(value),"_blank");
-}
-
-async function createOrder(){
-  if(!currentUser){showAuth();return;}
-  const pickup=$("pickup")?.value.trim()||"",destination=$("destination")?.value.trim()||"";
-  if(!pickup||!destination){toast("Lokasi pickup dan tujuan wajib diisi.");return;}
-  try{
-    await addDoc(collection(db,"orders"),{
-      customerId:currentUser.uid,customerEmail:currentUser.email||"",
-      senderName:$("senderName")?.value.trim()||"",
-      senderPhone:$("senderPhone")?.value.trim()||"",
-      pickup,destination,
-      receiverName:$("receiverName")?.value.trim()||"",
-      receiverPhone:$("receiverPhone")?.value.trim()||"",
-      itemDetail:$("itemDetail")?.value.trim()||"",
-      note:$("note")?.value.trim()||"",
-      status:"Menunggu",createdAt:serverTimestamp()
-    });
-    toast("Pesanan berhasil dibuat.");
-    setView("orders");
-  }catch(e){console.error(e);toast("Gagal menyimpan. Periksa Firestore Rules.");}
-}
-
-function watchOrders(){
-  const list=$("ordersList"); if(!list)return;
-  if(!currentUser){list.innerHTML=`<div class="empty-card"><b>Belum login</b><p>Masuk terlebih dahulu untuk melihat pesanan.</p><button class="primary-btn" data-action="login">Masuk</button></div>`;bindPage();return;}
-  if(stopOrders){stopOrders();stopOrders=null;}
-  const q=query(collection(db,"orders"),where("customerId","==",currentUser.uid));
-  stopOrders=onSnapshot(q,snap=>{
-    if(currentView!=="orders")return;
-    const rows=[];snap.forEach(d=>rows.push({id:d.id,...d.data()}));
-    rows.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-    if(!rows.length){list.innerHTML=`<div class="empty-card"><b>Belum ada pesanan</b><p>Pesanan yang dibuat akan tampil di sini.</p></div>`;return;}
-    list.innerHTML=rows.map(o=>`<article class="order-card">
-      <div class="order-top"><b>${esc(o.itemDetail||"Pesanan kurir")}</b><span class="status">${esc(o.status||"Menunggu")}</span></div>
-      <div class="route"><div>📍 ${esc(o.pickup||"-")}</div><div>📦 ${esc(o.destination||"-")}</div></div>
-      <div class="order-meta">Penerima: ${esc(o.receiverName||"-")}</div>
-      <button class="route-btn" data-route="${esc(o.pickup||"")}||${esc(o.destination||"")}">🗺️ Lihat rute</button>
-    </article>`).join("");
-    document.querySelectorAll("[data-route]").forEach(b=>{
-      b.addEventListener("click",()=>{
-        const [o,d]=b.dataset.route.split("||");
-        window.open("https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(o)+"&destination="+encodeURIComponent(d),"_blank");
-      });
-    });
-  },e=>{console.error(e);list.innerHTML=`<div class="empty-card"><b>Pesanan belum dapat dimuat</b><p>Periksa koneksi Firebase dan Firestore Rules.</p></div>`});
-}
-
-function showAuth(){
-  const root=$("modal");
-  root.innerHTML=`<div class="modal-backdrop" id="authBackdrop">
-    <div class="modal-card">
-      <button class="modal-close" id="closeAuth">×</button>
-      <h2>Masuk</h2><p>Gunakan akun customer atau admin.</p>
-      <input id="authEmail" type="email" placeholder="Email">
-      <input id="authPassword" type="password" placeholder="Password">
-      <button class="primary-btn full" id="doLogin">Masuk</button>
-      <button class="secondary-btn full" id="doRegister">Daftar akun baru</button>
-      <div id="authMessage" class="auth-message"></div>
-    </div></div>`;
-  $("closeAuth").onclick=closeAuth;
-  $("authBackdrop").addEventListener("click",e=>{if(e.target.id==="authBackdrop")closeAuth()});
-  $("doLogin").onclick=login;
-  $("doRegister").onclick=register;
-}
-
-function closeAuth(){$("modal").innerHTML=""}
-function authError(msg){$("authMessage").textContent=msg}
-
-async function login(){
-  const email=$("authEmail").value.trim(),password=$("authPassword").value;
-  if(!email||!password){authError("Email dan password wajib diisi.");return;}
-  try{await signInWithEmailAndPassword(auth,email,password);closeAuth();toast("Berhasil masuk.");}
-  catch(e){console.error(e);authError("Email atau password salah.");}
-}
-
-async function register(){
-  const email=$("authEmail").value.trim(),password=$("authPassword").value;
-  if(!email||!password){authError("Email dan password wajib diisi.");return;}
-  if(password.length<6){authError("Password minimal 6 karakter.");return;}
-  try{
-    const c=await createUserWithEmailAndPassword(auth,email,password);
-    await setDoc(doc(db,"users",c.user.uid),{email,role:"customer",createdAt:serverTimestamp()});
-    closeAuth();toast("Akun berhasil dibuat.");
-  }catch(e){console.error(e);authError(e.message||"Pendaftaran gagal.");}
-}
-
-async function loadRole(u){
-  currentRole="customer";
-  try{
-    const snap=await getDoc(doc(db,"users",u.uid));
-    if(snap.exists())currentRole=snap.data().role||"customer";
-  }catch(e){console.warn("Role tidak dapat dibaca:",e)}
-}
-
-document.querySelectorAll(".bottom-nav [data-view]").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.view)));
-$("authBtn").addEventListener("click",()=>currentUser?signOut(auth):showAuth());
-
-onAuthStateChanged(auth,async u=>{
-  currentUser=u||null;
-  if(u)await loadRole(u);
-  else currentRole="customer";
-  $("authBtn").textContent=u?"Keluar":"Masuk";
-  render();
-});
-
-render();
+const firebaseConfig={apiKey:'AIzaSyABpnRRv30zYTN0J_IReUgZPY88FSm9Omw',authDomain:'kurirtabin.firebaseapp.com',projectId:'kurirtabin',storageBucket:'kurirtabin.firebasestorage.app',messagingSenderId:'55763945350',appId:'1:55763945350:web:a06e1e51fea385aa494e07'};
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+const $=(s)=>document.querySelector(s); const appEl=$('#app');
+let user=null,profile=null,view='home',unsubscribe=null,orders=[];
+const demoOrders=[{id:'TB-260925-001',customer:'Pelanggan Demo',service:'Kirim Barang',from:'Tanjung Bintang',to:'Way Halim',status:'Dikirim',total:18000,createdAt:new Date()}];
+const money=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n||0);
+const esc=s=>String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function statusBadge(s){let c=s==='Selesai'?'green':s==='Dibatalkan'?'red':s==='Menunggu'?'orange':'green';return `<span class="badge ${c}">${esc(s)}</span>`}
+async function getProfile(u){const snap=await getDoc(doc(db,'users',u.uid));return snap.exists()?snap.data():{email:u.email,role:'customer',name:u.email?.split('@')[0]||'Pelanggan'}}
+function logo(){return `<img src="assets/logo.png" alt="TB Express">`}
+function topbar(admin=false){return `<header class="${admin?'admin-top':'topbar'}"><div class="${admin?'admin-top-inner':'topbar-inner'}"><div class="brand">${logo()}<div><div class="brand-title">TB Express</div><div class="brand-sub">Jastip & Kurir Tanjung Bintang</div></div></div>${admin?`<button class="btn btn-orange" id="logout">Keluar</button>`:`<div class="location"><span class="material-symbols-outlined">location_on</span>Tanjung Bintang</div>`}</div></header>`}
+function bottom(){return `<nav class="bottom"><div class="bottom-inner">${[['home','Beranda','home'],['send','Kirim','local_shipping'],['orders','Pesanan','receipt_long'],['profile','Profil','person']].map(x=>`<button class="navbtn ${view===x[0]?'active':''}" data-nav="${x[0]}"><span class="material-symbols-outlined">${x[2]}</span>${x[1]}</button>`).join('')}</div></nav>`}
+function customerLayout(content){appEl.innerHTML=`<div class="shell">${topbar()}<main class="container mobile-container">${content}</main>${bottom()}</div>`;bindCommon()}
+function home(){return `<section class="hero"><div class="eyebrow">Tanjung Bintang</div><h1>Jastip & Kurir</h1><p>Kirim barang, titip belanja, dan pantau pesanan dengan mudah.</p><button class="btn btn-white" data-nav="send"><span class="material-symbols-outlined">add</span>Kirim Barang</button></section><div class="section-title">Layanan</div><div class="grid3"><button class="service" data-nav="send"><div class="icon"><span class="material-symbols-outlined">package_2</span></div><h3>Kirim Barang</h3><p>Kurir cepat dari lokasi Anda ke tujuan.</p></button><button class="service" data-nav="store"><div class="icon"><span class="material-symbols-outlined">shopping_bag</span></div><h3>Jastip & Store</h3><p>Belanja makanan dan barang melalui kami.</p></button><button class="service" data-nav="orders"><div class="icon"><span class="material-symbols-outlined">route</span></div><h3>Lacak Pesanan</h3><p>Lihat status dan perjalanan pesanan.</p></button></div><div class="quick-row"><button class="quick" data-nav="send"><span class="material-symbols-outlined">bolt</span>Express</button><button class="quick" data-nav="store"><span class="material-symbols-outlined">restaurant</span>Food</button><button class="quick" data-nav="orders"><span class="material-symbols-outlined">location_on</span>Tracking</button><button class="quick" data-nav="profile"><span class="material-symbols-outlined">support_agent</span>Bantuan</button></div><div class="promo"><div><strong>Antar cepat di Tanjung Bintang</strong><br><span>Pesan sekarang, kami bantu sampai tujuan.</span></div><span class="material-symbols-outlined" style="font-size:42px;color:var(--green)">two_wheeler</span></div>`}
+function sendPage(){return `<div class="section-title" style="margin-top:4px">Buat Pesanan</div><div class="card"><div class="form"><div><div class="label">Jenis layanan</div><div class="option-row"><button class="option active" data-service="Kirim Barang"><strong>📦 Kirim</strong><span>Barang Anda</span></button><button class="option" data-service="Jastip"><strong>🛍️ Jastip</strong><span>Titip belanja</span></button><button class="option" data-service="Food"><strong>🍜 Food</strong><span>Pesan makanan</span></button></div></div><div class="route"><div><div class="route-dot"></div><div class="route-line"></div><div class="route-dot red"></div></div><div class="form"><div><div class="label">Lokasi pickup</div><input id="from" class="field" placeholder="Contoh: Tanjung Bintang, Lampung Selatan"></div><div><div class="label">Lokasi tujuan</div><input id="to" class="field" placeholder="Contoh: Jatibaru, Tanjung Bintang"></div></div></div><div><div class="label">Detail barang / belanjaan</div><textarea id="notes" class="field" placeholder="Contoh: 1 paket, makanan, ukuran, catatan kurir..."></textarea></div><div><div class="label">Pilihan pengantaran</div><div class="option-row"><button class="option active" data-speed="Express"><strong>⚡ Express</strong><span>Prioritas</span></button><button class="option" data-speed="Reguler"><strong>🛵 Reguler</strong><span>Lebih hemat</span></button><button class="option" data-speed="Terjadwal"><strong>🗓️ Jadwal</strong><span>Pilih waktu</span></button></div></div><div><div class="label">Pembayaran</div><select id="payment" class="field"><option>COD</option><option>Transfer</option><option>Bayar saat selesai</option></select></div><div class="sticky-action"><button class="btn btn-primary" style="width:100%" id="submitOrder"><span class="material-symbols-outlined">check_circle</span>Pesan Sekarang</button></div></div></div>`}
+function ordersPage(){const list=orders.length?orders:demoOrders;return `<div class="section-title" style="margin-top:4px">Pesanan Saya</div><div class="card"><div class="list">${list.map(o=>`<button class="row order" data-order="${esc(o.id)}" style="text-align:left;background:none;width:100%"><div class="order-icon"><span class="material-symbols-outlined">package_2</span></div><div class="order-main"><strong>${esc(o.id||'Pesanan')}</strong><small>${esc(o.service||'Kirim Barang')} • ${esc(o.to||'-')}</small><small>${o.total?money(o.total):'Menunggu harga'} • ${o.createdAt?.toDate?o.createdAt.toDate().toLocaleString('id-ID'):''}</small></div>${statusBadge(o.status||'Menunggu')}</button>`).join('')}</div></div>`}
+function profilePage(){return `<div class="section-title" style="margin-top:4px">Profil</div><div class="card"><div class="profile-head"><div class="avatar" style="display:grid;place-items:center"><span class="material-symbols-outlined" style="font-size:30px;color:var(--green)">person</span></div><div><strong>${esc(profile?.name||user?.email||'Pelanggan')}</strong><div class="muted" style="font-size:11px">${esc(user?.email||'')}</div></div></div><div class="row"><span>Nomor pelanggan</span><strong style="font-size:11px">${esc(user?.uid?.slice(0,10)||'-')}</strong></div><div class="row"><span>Area layanan</span><strong style="font-size:11px">Tanjung Bintang</strong></div><button class="btn btn-danger" style="width:100%;margin-top:8px" id="logout">Keluar</button></div><div class="section-title">Bantuan</div><div class="card"><div class="row"><span>📞 Hubungi admin</span><span>›</span></div><div class="row"><span>📍 Area layanan</span><span>›</span></div><div class="row"><span>ℹ️ Tentang TB Express</span><span>›</span></div></div>`}
+function storePage(){const products=[['Bakso Sony','Makanan','Rp 25.000','🍜'],['Paket Sembako','Belanja','Rp 50.000','🛍️'],['Titip Belanja Bebas','Jastip','Mulai Rp 10.000','🛒']];return `<div class="section-title" style="margin-top:4px">Jastip & Store</div><div class="promo" style="margin-top:0"><div><strong>Belanja, kami yang ambil & antar</strong><br><span>Masukkan barang yang ingin dititipkan.</span></div><span style="font-size:38px">🛵</span></div><div class="section-title">Pilihan layanan</div><div class="list">${products.map(p=>`<button class="card" style="display:flex;align-items:center;text-align:left;gap:12px" data-product="${p[0]}"><div style="font-size:34px">${p[3]}</div><div style="flex:1"><strong>${p[0]}</strong><div class="muted" style="font-size:10px">${p[1]}</div></div><strong style="font-size:11px;color:var(--green)">${p[2]}</strong></button>`).join('')}</div>`}
+function trackingPage(o){return `<div class="section-title" style="margin-top:4px">Lacak Pesanan</div><div class="card"><div style="display:flex;justify-content:space-between;gap:10px"><div><strong>${esc(o.id)}</strong><div class="muted" style="font-size:10px">${esc(o.service||'Kirim Barang')}</div></div>${statusBadge(o.status||'Dikirim')}</div><div class="map" style="margin-top:14px"><div class="map-label">📍 Rute Tanjung Bintang</div><div class="road"></div><div class="route-line-map"></div><div class="pin a">📍</div><div class="pin b">🏁</div></div><div class="grid3" style="margin-top:12px"><div class="card" style="padding:10px;text-align:center"><small>Pickup</small><strong style="display:block;font-size:11px">${esc(o.from||'-')}</strong></div><div class="card" style="padding:10px;text-align:center"><small>Status</small><strong style="display:block;font-size:11px">${esc(o.status||'-')}</strong></div><div class="card" style="padding:10px;text-align:center"><small>Tujuan</small><strong style="display:block;font-size:11px">${esc(o.to||'-')}</strong></div></div><button class="btn btn-primary" style="width:100%;margin-top:12px" id="mapsBtn"><span class="material-symbols-outlined">map</span>Buka Rute Google Maps</button></div>`}
+function bindCommon(){document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>{view=b.dataset.nav;render()});const lo=$('#logout');if(lo)lo.onclick=logout;document.querySelectorAll('[data-product]').forEach(b=>b.onclick=()=>{view='send';render();setTimeout(()=>{const n=$('#notes');if(n)n.value='Titip: '+b.dataset.product},50)});document.querySelectorAll('[data-order]').forEach(b=>b.onclick=()=>{const o=orders.find(x=>x.id===b.dataset.order)||demoOrders.find(x=>x.id===b.dataset.order);if(o){appEl.dataset.selected=JSON.stringify(o);view='tracking';render()}});}
+function bindSend(){document.querySelectorAll('[data-service]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-service]').forEach(x=>x.classList.remove('active'));b.classList.add('active')});document.querySelectorAll('[data-speed]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-speed]').forEach(x=>x.classList.remove('active'));b.classList.add('active')});$('#submitOrder').onclick=createOrder}
+async function createOrder(){if(!user){showLogin();return}const from=$('#from').value.trim(),to=$('#to').value.trim(),notes=$('#notes').value.trim();if(!from||!to){toast('Lokasi pickup dan tujuan wajib diisi');return}const service=document.querySelector('[data-service].active')?.dataset.service||'Kirim Barang';const speed=document.querySelector('[data-speed].active')?.dataset.speed||'Express';try{const ref=await addDoc(collection(db,'orders'),{userId:user.uid,customer:profile?.name||user.email,service,speed,from,to,notes,payment:$('#payment').value,status:'Menunggu',total:0,createdAt:serverTimestamp()});toast('Pesanan berhasil dibuat');view='orders';render()}catch(e){toast('Pesanan gagal: '+(e.code||'cek Firestore Rules'))}}
+function render(){if(!user){showLogin();return}if(profile?.role==='admin'){renderAdmin();return}if(view==='tracking'){let o;try{o=JSON.parse(appEl.dataset.selected)}catch{}customerLayout(trackingPage(o||demoOrders[0]));const mb=$('#mapsBtn');if(mb)mb.onclick=()=>{const from=o?.from||'Tanjung Bintang, Lampung Selatan',to=o?.to||'Tanjung Bintang, Lampung Selatan';window.open('https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(from)+'&destination='+encodeURIComponent(to),'_blank')}}else if(view==='send'){customerLayout(sendPage());bindSend()}else if(view==='orders'){customerLayout(ordersPage())}else if(view==='profile'){customerLayout(profilePage())}else if(view==='store'){customerLayout(storePage())}else{customerLayout(home())}}
+function showLogin(){appEl.innerHTML=`<div class="login"><div class="login-card"><img class="login-logo" src="assets/logo.png"><div class="center"><div class="eyebrow" style="color:var(--green)">TB EXPRESS</div><h1 style="font-size:24px;margin:5px 0">Jastip & Kurir</h1><p class="muted" style="font-size:12px">Masuk untuk memesan, melacak, dan mengelola pesanan.</p></div><div class="role-grid" style="margin:18px 0"><button class="role active" id="customerRole"><strong>👤 Pelanggan</strong><br><span class="muted" style="font-size:10px">Pesan layanan</span></button><button class="role" id="adminRole"><strong>🧑‍💼 Admin</strong><br><span class="muted" style="font-size:10px">Kelola operasional</span></button></div><div id="loginForm"></div></div></div>`;let mode='login';let role='customer';const form=()=>{ $('#loginForm').innerHTML=`<div class="form"><div><div class="label">Email</div><input id="email" class="field" type="email" placeholder="email@contoh.com"></div><div><div class="label">Password</div><input id="password" class="field" type="password" placeholder="••••••••"></div><button class="btn btn-primary" id="authSubmit" style="width:100%">${mode==='login'?'Masuk':'Daftar Akun'}</button><button class="btn btn-outline" id="switchAuth" style="width:100%">${mode==='login'?'Belum punya akun? Daftar':'Sudah punya akun? Masuk'}</button><div class="center muted" style="font-size:10px">Akun admin ditentukan dari role Firestore.</div></div>`;$('#authSubmit').onclick=async()=>{try{const email=$('#email').value.trim(),password=$('#password').value;if(mode==='login'){await signInWithEmailAndPassword(auth,email,password)}else{const cr=await createUserWithEmailAndPassword(auth,email,password);await setDoc(doc(db,'users',cr.user.uid),{email,role:'customer',name:email.split('@')[0],createdAt:serverTimestamp()})}}catch(e){toast(e.message)}};$('#switchAuth').onclick=()=>{mode=mode==='login'?'register':'login';form()}};form();$('#customerRole').onclick=()=>{role='customer';toast('Mode pelanggan dipilih')};$('#adminRole').onclick=()=>{role='admin';toast('Masuk memakai akun admin yang sudah dibuat di Firebase')};}
+async function logout(){await signOut(auth);user=null;profile=null;orders=[];view='home';render()}
+function renderAdmin(){const menu=[['dashboard','dashboard','Dashboard'],['orders','receipt_long','Pesanan'],['customers','group','Pelanggan'],['products','inventory_2','Produk & Store'],['reports','bar_chart','Laporan']];const body=view==='admin-orders'?adminOrders():view==='admin-customers'?adminCustomers():view==='admin-products'?adminProducts():view==='admin-reports'?adminReports():adminDashboard();appEl.innerHTML=`<div class="admin-shell">${topbar(true)}<div class="admin-layout"><aside class="sidebar">${menu.map(m=>`<button class="sidebtn ${view==='admin-'+m[0]||view==='home'&&m[0]==='dashboard'?'active':''}" data-admin="${m[0]}"><span class="material-symbols-outlined">${m[1]}</span>${m[2]}</button>`).join('')}</aside><main class="admin-main">${body}</main></div></div>`;document.querySelectorAll('[data-admin]').forEach(b=>b.onclick=()=>{view='admin-'+b.dataset.admin;render()});$('#logout').onclick=logout}
+function adminDashboard(){const list=orders.length?orders:demoOrders;const count=s=>list.filter(x=>x.status===s).length;return `<div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><div class="muted" style="font-size:11px">Operasional hari ini</div><h1 style="margin:2px 0;font-size:24px">Dashboard Admin</h1></div><span class="badge green">Online</span></div><div class="kpis" style="margin-top:15px"><div class="kpi"><small>Total Pesanan</small><strong>${list.length}</strong></div><div class="kpi"><small>Menunggu</small><strong>${count('Menunggu')}</strong></div><div class="kpi"><small>Dikirim</small><strong>${count('Dikirim')}</strong></div><div class="kpi"><small>Selesai</small><strong>${count('Selesai')}</strong></div></div><div class="section-title">Pesanan Terbaru</div><div class="card table-card"><table class="table"><thead><tr><th>ID</th><th>Pelanggan</th><th>Layanan</th><th>Tujuan</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${list.slice(0,10).map(o=>`<tr><td><strong>${esc(o.id)}</strong></td><td>${esc(o.customer||'-')}</td><td>${esc(o.service||'-')}</td><td>${esc(o.to||'-')}</td><td>${statusBadge(o.status)}</td><td><button class="btn btn-outline" data-detail="${esc(o.id)}" style="padding:7px 9px;font-size:10px">Kelola</button></td></tr>`).join('')}</tbody></table></div>`}
+function adminOrders(){const list=orders.length?orders:demoOrders;return `<div><div class="muted" style="font-size:11px">Dispatch & operasional</div><h1 style="margin:2px 0;font-size:24px">Kelola Pesanan</h1></div><div class="card table-card" style="margin-top:15px"><table class="table"><thead><tr><th>ID</th><th>Pelanggan</th><th>Rute</th><th>Layanan</th><th>Status</th><th>Ubah</th></tr></thead><tbody>${list.map(o=>`<tr><td>${esc(o.id)}</td><td>${esc(o.customer||'-')}</td><td>${esc(o.from||'-')} → ${esc(o.to||'-')}</td><td>${esc(o.service||'-')}</td><td>${statusBadge(o.status)}</td><td><select class="field status-select" data-id="${esc(o.id)}" style="padding:7px"><option ${o.status==='Menunggu'?'selected':''}>Menunggu</option><option ${o.status==='Diproses'?'selected':''}>Diproses</option><option ${o.status==='Dijemput'?'selected':''}>Dijemput</option><option ${o.status==='Dikirim'?'selected':''}>Dikirim</option><option ${o.status==='Selesai'?'selected':''}>Selesai</option><option ${o.status==='Dibatalkan'?'selected':''}>Dibatalkan</option></select></td></tr>`).join('')}</tbody></table></div>`}
+function adminCustomers(){return `<div class="section-title" style="margin-top:0">Pelanggan</div><div class="card"><p class="muted" style="font-size:12px">Daftar pelanggan tersimpan di koleksi <b>users</b>. Profil customer dibuat otomatis saat registrasi.</p><button class="btn btn-outline" onclick="location.reload()">Muat ulang data</button></div>`}
+function adminProducts(){return `<div class="section-title" style="margin-top:0">Produk & Store</div><div class="grid3"><div class="service"><div class="icon">🍜</div><h3>Bakso Sony</h3><p>Produk makanan</p></div><div class="service"><div class="icon">🛍️</div><h3>Belanja Jastip</h3><p>Produk titipan</p></div><div class="service"><div class="icon">➕</div><h3>Tambah Produk</h3><p>Siap dikembangkan ke Firestore</p></div></div>`}
+function adminReports(){return `<div class="section-title" style="margin-top:0">Laporan</div><div class="kpis"><div class="kpi"><small>Pesanan</small><strong>${orders.length||demoOrders.length}</strong></div><div class="kpi"><small>Omzet</small><strong>${money((orders.length?orders:demoOrders).reduce((a,b)=>a+(b.total||0),0))}</strong></div></div><div class="card" style="margin-top:15px"><p style="font-size:12px">Laporan dapat dikembangkan menjadi export Excel/PDF dan filter tanggal.</p></div>`}
+async function loadOrders(){if(unsubscribe)unsubscribe();if(!user)return;try{const q=user&&profile?.role==='admin'?query(collection(db,'orders')):query(collection(db,'orders'),where('userId','==',user.uid));unsubscribe=onSnapshot(q,s=>{orders=s.docs.map(d=>({id:d.id,...d.data()}));if(user)render()},()=>{orders=[];render()})}catch(e){orders=[]}}
+onAuthStateChanged(auth,async u=>{user=u;if(u){profile=await getProfile(u);await loadOrders()}else{profile=null;orders=[]}render()});

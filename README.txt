@@ -1,45 +1,18 @@
-TANJUNG BINTANG — GO STYLE V2
+TB EXPRESS JASTIP & KURIR TANJUNG BINTANG
+Versi implementasi desain Stitch yang diberikan pengguna.
 
-File utama:
-- index.html: aplikasi standalone, Firebase sudah diisi sesuai project kurirtabin.
-- firestore.rules: rules untuk customer/admin.
+UPLOAD:
+1. Upload seluruh isi folder ini ke repository GitHub Pages.
+2. Pastikan index.html berada di root repository.
+3. Firebase Authentication: aktifkan Email/Password.
+4. Firestore: publish firestore.rules.
+5. Buat akun admin di Authentication > Users, lalu Firestore users/{UID}: email, role=admin, name.
+6. Customer daftar melalui aplikasi; role otomatis customer.
 
-DESAIN:
-Mengikuti referensi yang diberikan: gaya aplikasi kurir modern, kartu layanan, bottom navigation customer, tracking timeline, dan dashboard admin.
+FITUR CUSTOMER:
+Beranda, Kirim Barang, Jastip & Store, Pesanan, tracking, Google Maps, profil.
 
-CUSTOMER:
-- Beranda
-- Kirim Barang
-- Jastip & Store
-- Pesanan Saya
-- Tracking status
-- Google Maps rute
-- Pilihan layanan Instant/Reguler
-- Metode pembayaran COD/Transfer
-- Profil
+FITUR ADMIN:
+Dashboard, kelola pesanan/status, pelanggan, produk/store, laporan.
 
-ADMIN:
-- Dashboard KPI
-- Kelola semua pesanan
-- Filter status
-- Ubah status Menunggu/Diproses/Dikirim/Selesai/Dibatalkan
-- Buka rute Google Maps
-- Daftar customer
-- Produk & Store
-- Tambah/hapus produk
-- Laporan ringkas
-
-ROLE:
-Firestore users/{UID} harus memiliki role:
-admin
-atau
-customer
-
-Akun admin tidak dibuat dari tombol Daftar Customer. Buat akun admin di Firebase Authentication, lalu buat dokumen users/{UID} dengan role=admin.
-
-INSTALASI:
-1. Backup index.html lama.
-2. Upload index.html dari paket ini ke repository GitHub Pages.
-3. Publish.
-4. Firebase Console > Firestore > Rules: gunakan firestore.rules jika rules lama belum sesuai.
-5. Logout/login ulang agar role dibaca kembali.
+Catatan: peta menggunakan tombol Google Maps Directions tanpa Maps API key. Tracking GPS realtime dapat ditambahkan berikutnya.
