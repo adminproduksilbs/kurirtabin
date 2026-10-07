@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>KURIR TABIN LIVE — Pesan Antar Tanjung Bintang</title>
+<title>KURIR TABIN — Pesan Antar Tanjung Bintang</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -114,7 +114,7 @@
 </style>
 </head>
 <body>
-<div class="fb-banner" id="firebase-banner"><b>⚠️ Firebase belum dikonfigurasi</b>Order tidak bisa tersimpan &amp; live tracking tidak jalan. Ikuti <b>README.md langkah 1–4</b> untuk menghubungkan project Firebase kamu. Peta tetap bisa dicoba.</div>
+<div class="fb-banner" id="firebase-banner"><b>⚠️ data belum dikonfigurasi</b>Order tidak bisa tersimpan &amp; live tracking tidak jalan. Ikuti <b>README.md langkah 1–4</b> untuk menghubungkan project Firebase kamu. Peta tetap bisa dicoba.</div>
 <div class="app">
   <header class="hdr">
     <h1><span class="live-dot"></span>🛵 KURIR TABIN</h1>
@@ -145,7 +145,7 @@
           <textarea class="f-input" id="f-barang" placeholder="cth: 2 kotak dimsum mentai"></textarea>
           <label class="f-label">Berat (kg)</label>
           <input class="f-input" id="f-berat" type="number" min="0" step="0.5" placeholder="cth: 3">
-          <div class="hint">Gratis s/d 5 kg. Lebih dari itu +Rp3.000/kg (diatur oleh admin kurir).</div>
+          <div class="hint">Gratis s/d 5 kg.</div>
         </div>
         <div id="flds-penumpang" style="display:none">
           <label class="f-label">Nama penumpang</label>
@@ -200,7 +200,7 @@
           <div class="hint" id="hasil-note" style="display:none"></div>
         </div>
         <button class="btn btn-primary btn-block mt12" id="btn-order" type="button" disabled>✅ Buat Order</button>
-        <div class="hint">Tombol aktif setelah ongkir dihitung. Order tersimpan di Firebase &amp; langsung terlihat kurir.</div>
+        <div class="hint">Tombol aktif setelah ongkir dihitung &amp; langsung terlihat kurir.</div>
       </div>
     </section>
 
@@ -213,7 +213,7 @@
     <section class="panel" id="tab-set">
       <div class="card">
         <h3>⚙️ Tarif &amp; biaya tambahan</h3>
-        <div class="hint">Tarif diatur oleh admin kurir dan otomatis berlaku untuk semua perangkat. Nilai di bawah selalu mengikuti pengaturan terbaru.</div>
+        <div class="hint">Tarif Sudah ditetapkan oleh sistem.</div>
       </div>
       <div class="card">
         <h3>📋 Tabel tarif</h3>
