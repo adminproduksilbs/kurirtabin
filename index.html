@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>KURIR TABIN — Pesan Antar Tanjung Bintang</title>
+<title>KURIR TABIN LIVE — Pesan Antar Tanjung Bintang</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -111,14 +111,107 @@
   .tarif-tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:6px}
   .tarif-tbl th,.tarif-tbl td{border:1px solid var(--line);padding:6px 8px;text-align:left}
   .tarif-tbl th{background:#f0fdf9;color:var(--emd)}
+  /* ===== CS AI chat ===== */
+  .cs-fab{position:fixed;bottom:calc(84px + env(safe-area-inset-bottom));right:max(16px,calc(50vw - 224px));width:56px;height:56px;border-radius:50%;border:0;background:var(--emd);color:#fff;font-size:26px;cursor:pointer;z-index:70;box-shadow:0 8px 24px rgba(5,150,105,.4);display:flex;align-items:center;justify-content:center}
+  .cs-fab:active{transform:scale(.94)}
+  .cs-panel{position:fixed;left:50%;transform:translateX(-50%) translateY(12px);bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100% - 32px);max-width:448px;height:min(62vh,500px);background:#fff;border-radius:20px;box-shadow:0 16px 48px rgba(2,44,34,.25);z-index:75;display:none;flex-direction:column;overflow:hidden;opacity:0;transition:opacity .18s,transform .18s}
+  .cs-panel.open{display:flex;opacity:1;transform:translateX(-50%) translateY(0)}
+  .cs-head{background:var(--emd);color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px}
+  .cs-head .t{font-weight:800;font-size:15px}
+  .cs-head .s{font-size:11px;opacity:.85}
+  .cs-close{margin-left:auto;border:0;background:rgba(255,255,255,.18);color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer}
+  .cs-body{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:var(--bg)}
+  .cs-msg{max-width:82%;padding:9px 12px;border-radius:14px;font-size:13.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
+  .cs-bot{background:#fff;color:var(--ink);border:1px solid var(--line);border-bottom-left-radius:4px;align-self:flex-start}
+  .cs-user{background:var(--emd);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+  .cs-typing{align-self:flex-start;background:#fff;border:1px solid var(--line);border-radius:14px;border-bottom-left-radius:4px;padding:10px 14px;display:flex;gap:5px}
+  .cs-typing span{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:csb 1.2s infinite}
+  .cs-typing span:nth-child(2){animation-delay:.15s}
+  .cs-typing span:nth-child(3){animation-delay:.3s}
+  @keyframes csb{0%,60%,100%{transform:none;opacity:.5}30%{transform:translateY(-5px);opacity:1}}
+  .cs-foot{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line);background:#fff}
+  .cs-input{flex:1;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none}
+  .cs-input:focus{border-color:var(--em)}
+  .cs-send{border:0;background:var(--emd);color:#fff;width:44px;height:44px;border-radius:12px;font-size:18px;cursor:pointer;flex-shrink:0}
+  .cs-send:disabled{opacity:.5}
+  /* ===== Auth wajib customer ===== */
+  .auth-overlay{position:fixed;inset:0;z-index:300;background:rgba(6,40,32,.55);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px}
+  .auth-overlay[hidden]{display:none}
+  .auth-card{background:#fff;border-radius:20px;padding:26px 22px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;max-height:92vh;overflow-y:auto}
+  .auth-logo{font-size:44px}
+  .auth-card h2{font-size:20px;font-weight:800;margin:6px 0 2px;color:var(--ink)}
+  .auth-sub{font-size:13px;color:#64748b;margin-bottom:16px}
+  .btn-google{width:100%;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:11px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;color:var(--ink);font-family:inherit;margin-bottom:6px}
+  .btn-google:disabled{opacity:.6}
+  .g-icon{width:22px;height:22px;border-radius:50%;border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-weight:800;color:#4285F4;font-size:14px}
+  .auth-div{display:flex;align-items:center;gap:10px;color:#94a3b8;font-size:12.5px;margin:10px 0}
+  .auth-div::before,.auth-div::after{content:'';flex:1;height:1px;background:var(--line)}
+  .auth-tabs{display:flex;background:#f1f5f9;border-radius:12px;padding:4px;margin-bottom:4px}
+  .auth-tab{flex:1;border:0;background:transparent;padding:9px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;color:#64748b;font-family:inherit}
+  .auth-tab.active{background:#fff;color:var(--emd);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+  .auth-card .f-label{text-align:left;display:block;margin-top:10px}
+  .auth-err{display:none;background:#fef2f2;color:#b91c1c;font-size:13px;border-radius:10px;padding:9px 11px;margin:10px 0 0;text-align:left}
+  .auth-chip{display:inline-flex;align-items:center;gap:8px;margin-top:10px;background:rgba(255,255,255,.18);border-radius:999px;padding:5px 6px 5px 12px;font-size:13px;font-weight:600;max-width:100%}
+  .auth-chip-nama{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}
+  .auth-chip button{border:0;background:#fff;color:var(--emd);font-weight:700;font-size:12.5px;border-radius:999px;padding:5px 12px;cursor:pointer;font-family:inherit}
+  /* ===== Biaya tambahan collapsible ===== */
+  .sc-head{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:4px 0}
+  .sc-head .sec-label{margin:0;flex:1;text-align:left}
+  .sc-badge{background:var(--em);color:#fff;font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap}
+  .sc-badge[hidden]{display:none}
+  .sc-chev{color:#94a3b8;font-size:14px;transition:transform .2s}
+  .sc-head.open .sc-chev{transform:rotate(180deg)}
+  #sc-chips[hidden]{display:none}
 </style>
 </head>
 <body>
-<div class="fb-banner" id="firebase-banner"><b>⚠️ data belum dikonfigurasi</b>Order tidak bisa tersimpan &amp; live tracking tidak jalan. Ikuti <b>README.md langkah 1–4</b> untuk menghubungkan project Firebase kamu. Peta tetap bisa dicoba.</div>
+<!-- ============ AUTH WAJIB (overlay) ============ -->
+<div class="auth-overlay" id="auth-overlay" hidden>
+  <div class="auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+    <div class="auth-logo">🛵</div>
+    <h2 id="auth-title">KURIR TABIN</h2>
+    <p class="auth-sub">Daftar atau masuk dulu ya biar bisa pesan antar 🙏</p>
+    <button class="btn-google" id="auth-google" type="button"><span class="g-icon">G</span> Masuk dengan Google</button>
+    <div class="auth-div"><span>atau</span></div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-masuk" type="button">Masuk</button>
+      <button class="auth-tab" id="tab-daftar" type="button">Daftar</button>
+    </div>
+    <label class="f-label" for="auth-email">Email</label>
+    <input class="f-input" id="auth-email" type="email" placeholder="cth: kamu@email.com" autocomplete="email">
+    <label class="f-label" for="auth-pass">Password</label>
+    <input class="f-input" id="auth-pass" type="password" placeholder="Minimal 6 karakter" autocomplete="current-password">
+    <div class="auth-err" id="auth-err"></div>
+    <button class="btn btn-primary btn-block" id="auth-submit" type="button" style="margin-top:14px">Masuk</button>
+    <div class="auth-div"><span>atau</span></div>
+    <button class="btn-google" id="auth-phone-toggle" type="button">📱 Masuk dengan No HP</button>
+    <div id="auth-phone-box" style="display:none">
+      <div id="auth-phone-step1">
+        <label class="f-label" for="auth-phone">Nomor HP</label>
+        <input class="f-input" id="auth-phone" inputmode="tel" placeholder="cth: 089632166974" autocomplete="tel">
+        <div id="recaptcha-container"></div>
+        <button class="btn btn-primary btn-block" id="auth-phone-send" type="button" style="margin-top:14px">Kirim Kode</button>
+      </div>
+      <div id="auth-phone-step2" style="display:none">
+        <p class="auth-sub" id="auth-otp-label" style="margin-top:12px">Kode dikirim via SMS</p>
+        <label class="f-label" for="auth-otp">Kode OTP</label>
+        <input class="f-input" id="auth-otp" inputmode="numeric" maxlength="6" placeholder="6 digit">
+        <button class="btn btn-primary btn-block" id="auth-otp-verify" type="button" style="margin-top:14px">Verifikasi</button>
+        <button class="btn-google" id="auth-otp-resend" type="button" style="margin-top:8px">Kirim ulang kode</button>
+        <button type="button" id="auth-phone-change" style="background:none;border:0;color:var(--emd);font-weight:700;font-size:13px;margin-top:10px;cursor:pointer;font-family:inherit">← Ganti nomor HP</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="fb-banner" id="firebase-banner"><b>⚠️ Firebase belum dikonfigurasi</b>Order tidak bisa tersimpan &amp; live tracking tidak jalan. Ikuti <b>README.md langkah 1–4</b> untuk menghubungkan project Firebase kamu. Peta tetap bisa dicoba.</div>
 <div class="app">
   <header class="hdr">
     <h1><span class="live-dot"></span>🛵 KURIR TABIN</h1>
     <p>Tanjung Bintang • Antar barang, penumpang, makanan &amp; titip beli</p>
+    <div class="auth-chip" id="auth-chip" style="display:none">
+      <span class="auth-chip-nama" id="auth-chip-nama"></span>
+      <button type="button" id="auth-keluar">Keluar</button>
+    </div>
   </header>
   <main>
     <!-- ============ TAB: ORDER BARU ============ -->
@@ -145,7 +238,7 @@
           <textarea class="f-input" id="f-barang" placeholder="cth: 2 kotak dimsum mentai"></textarea>
           <label class="f-label">Berat (kg)</label>
           <input class="f-input" id="f-berat" type="number" min="0" step="0.5" placeholder="cth: 3">
-          <div class="hint">Gratis s/d 5 kg.</div>
+          <div class="hint">Gratis s/d 5 kg. Lebih dari itu +Rp3.000/kg (diatur oleh admin kurir).</div>
         </div>
         <div id="flds-penumpang" style="display:none">
           <label class="f-label">Nama penumpang</label>
@@ -185,8 +278,12 @@
       </div>
 
       <div class="card">
-        <div class="sec-label">Biaya tambahan (opsional)</div>
-        <div class="chips">
+        <div class="sc-head" id="sc-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="sc-chips">
+          <span class="sec-label">Biaya tambahan (opsional)</span>
+          <span class="sc-badge" id="sc-badge" hidden></span>
+          <span class="sc-chev" aria-hidden="true">▾</span>
+        </div>
+        <div class="chips" id="sc-chips" hidden>
           <button class="sc-chip" id="sc-hujan" type="button">🌧 Hujan</button>
           <button class="sc-chip" id="sc-sibuk" type="button">🕐 Jam sibuk</button>
           <button class="sc-chip" id="sc-malam" type="button">🌙 Jam malam</button>
@@ -200,7 +297,7 @@
           <div class="hint" id="hasil-note" style="display:none"></div>
         </div>
         <button class="btn btn-primary btn-block mt12" id="btn-order" type="button" disabled>✅ Buat Order</button>
-        <div class="hint">Tombol aktif setelah ongkir dihitung &amp; langsung terlihat kurir.</div>
+        <div class="hint">Tombol aktif setelah ongkir dihitung. Order tersimpan di Firebase &amp; langsung terlihat kurir.</div>
       </div>
     </section>
 
@@ -213,7 +310,7 @@
     <section class="panel" id="tab-set">
       <div class="card">
         <h3>⚙️ Tarif &amp; biaya tambahan</h3>
-        <div class="hint">Tarif Sudah ditetapkan oleh sistem.</div>
+        <div class="hint">Tarif diatur oleh admin kurir dan otomatis berlaku untuk semua perangkat. Nilai di bawah selalu mengikuti pengaturan terbaru.</div>
       </div>
       <div class="card">
         <h3>📋 Tabel tarif</h3>
@@ -232,10 +329,23 @@
     <button class="nav-btn" id="nav-saya"><span class="nic">📦</span>Order Saya<span class="nav-badge" id="badge-saya" style="display:none">0</span></button>
     <button class="nav-btn" id="nav-set"><span class="nic">⚙️</span>Pengaturan</button>
   </nav>
+  <button class="cs-fab" id="cs-fab" aria-label="Chat CS">💬</button>
+  <div class="cs-panel" id="cs-panel" aria-hidden="true">
+    <div class="cs-head">
+      <div><div class="t">CS KURIR TABIN</div><div class="s">AI siap membantu • balas otomatis</div></div>
+      <button class="cs-close" id="cs-close" aria-label="Tutup">✕</button>
+    </div>
+    <div class="cs-body" id="cs-body"></div>
+    <div class="cs-foot">
+      <input class="cs-input" id="cs-input" placeholder="Tulis pertanyaan..." autocomplete="off" maxlength="500">
+      <button class="cs-send" id="cs-send" aria-label="Kirim">➤</button>
+    </div>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script>
 /* ================= Helpers ================= */
@@ -493,6 +603,7 @@ function gambarRute(coords, dashed){
 function toggleSurcharge(key){
   surchState[key] = !surchState[key];
   $('sc-' + key).classList.toggle('on', surchState[key]);
+  updateScBadge();
   if(jarakKm != null && pickup && dest) tampilkanHasil();
 }
 function refreshChipLabels(){
@@ -565,6 +676,7 @@ function resetHasil(){
 }
 async function buatOrder(){
   if(!db){ toast('⚠️ Hubungkan Firebase dulu (lihat banner di atas)'); return; }
+  if(window.ktAuthAktif && !window.authUser){ window.tampilkanAuth(); toast('Daftar atau masuk dulu ya biar bisa pesan 🙏'); return; }
   const nama = $('f-nama').value.trim();
   const wa = $('f-wa').value.trim();
   const catatan = $('f-catatan').value.trim();
@@ -598,6 +710,10 @@ async function buatOrder(){
     const order = Object.assign({
       code, service,
       customerName: nama, customerPhone: wa,
+      uid: window.authUser ? window.authUser.uid : null,
+      nama: window.authUser ? (window.authUser.displayName || String(window.authUser.email || '').split('@')[0]) : null,
+      email: window.authUser ? (window.authUser.email || '') : null,
+      phone: window.authUser ? (window.authUser.phoneNumber || '') : null,
       pickup: { lat: pickup.lat, lng: pickup.lng, label: pickup.label },
       dest: { lat: dest.lat, lng: dest.lng, label: dest.label },
       notes: catatan,
@@ -630,6 +746,7 @@ function resetFormOrder(){
   stopsVal = 1; $('stops-val').textContent = '1';
   surchState = { hujan:false, sibuk:false, malam:false, rusak:false };
   document.querySelectorAll('.sc-chip').forEach(c => c.classList.remove('on'));
+  updateScBadge(); setScOpen(false);
   if(markerJemput){ custMap.removeLayer(markerJemput); markerJemput = null; }
   if(markerAntar){ custMap.removeLayer(markerAntar); markerAntar = null; }
   pickup = null; dest = null;
@@ -891,6 +1008,321 @@ function boot(){
   window.batalkanOrder = batalkanOrder;
 }
 document.addEventListener('DOMContentLoaded', boot);
+</script>
+<script>
+/* ============ CS AI KURIR TABIN ============ */
+(function(){
+  var API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=AQ.Ab8RN6J65Q35qYqYejB1rlTJHir72fNrU-KKnmqBU3IZuzCUGA';
+  var WA_NUM = '6289632166974';
+  var FALLBACK = 'AI lagi sibuk, coba lagi sebentar ya 🙏\nAtau hubungi langsung via WhatsApp: ' + WA_NUM;
+  var SYSTEM = 'Kamu adalah CS (customer service) "KURIR TABIN", jasa antar area Tanjung Bintang. '
+    + 'Bicaralah santai, ramah, dan singkat (maksimal 3 kalimat per jawaban, kecuali saat menjelaskan tarif). '
+    + 'Hafalkan info berikut.\n\n'
+    + 'LAYANAN & TARIF (Rp):\n'
+    + '1. Antar Barang (maks 5 kg): 1-3 km = 10rb, 4-5 km = 14rb, 6-8 km = 18rb, >8 km = 18rb + 3rb/km. Kelebihan berat di atas 5 kg: +3rb/kg.\n'
+    + '2. Antar Penumpang: 1-3 km = 8rb, 4-5 km = 12rb, 6-8 km = 16rb, 9-10 km = 20rb, >10 km = 20rb + 3rb/km.\n'
+    + '3. Antar Makanan: 1-3 km = 10rb, 4-5 km = 14rb, 6-8 km = 18rb, 9-10 km = 22rb, >10 km = 22rb + 3rb/km.\n'
+    + '4. Titip Beli: tarif Antar Makanan + jasa belanja 4rb/titik. Kurir menalangi dulu belanjaannya, diganti saat barang diterima atau via transfer.\n\n'
+    + 'BIAYA TAMBAHAN: hujan 4rb, jam sibuk +25%, jam malam 7.500, jalan rusak 4rb.\n\n'
+    + 'CARA ORDER: 1) pilih layanan, 2) tap peta untuk titik jemput & antar (atau ketuk "Pakai Lokasi Saya"), '
+    + '3) ketuk "Hitung Ongkir", 4) isi detail lalu "Pesan". Lacak order di tab "Order Saya" — ada status dan posisi kurir di peta.\n\n'
+    + 'ATURAN JUJUR: jangan mengarang promo, diskon, testimoni, jam operasional, atau info lain yang tidak tertulis di sini. '
+    + 'Jika tidak tahu jawabannya, jika ditanya soal order spesifik/kode order, komplain, atau hal rumit, arahkan dengan sopan ke WhatsApp 6289632166974.';
+  var history = [];
+  var busy = false;
+
+  function $(id){ return document.getElementById(id); }
+
+  function addMsg(text, who){
+    var d = document.createElement('div');
+    d.className = 'cs-msg ' + (who === 'user' ? 'cs-user' : 'cs-bot');
+    d.textContent = text;
+    var body = $('cs-body');
+    body.appendChild(d);
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function setOpen(open){
+    $('cs-panel').classList.toggle('open', open);
+    $('cs-panel').setAttribute('aria-hidden', open ? 'false' : 'true');
+    $('cs-fab').style.display = open ? 'none' : 'flex';
+    if(open && !setOpen.greeted){
+      setOpen.greeted = true;
+      addMsg('Halo! Saya CS KURIR TABIN 🛵\nMau tanya tarif, cara order, atau lacak pesanan? Tanya aja ya!', 'bot');
+    }
+    if(open){ setTimeout(function(){ $('cs-input').focus(); }, 200); }
+  }
+
+  function showTyping(){
+    var t = document.createElement('div');
+    t.className = 'cs-typing'; t.id = 'cs-typing';
+    t.innerHTML = '<span></span><span></span><span></span>';
+    var body = $('cs-body');
+    body.appendChild(t);
+    body.scrollTop = body.scrollHeight;
+  }
+  function hideTyping(){ var t = $('cs-typing'); if(t) t.remove(); }
+
+  async function sendMsg(){
+    var inp = $('cs-input');
+    var text = inp.value.trim();
+    if(!text || busy) return;
+    busy = true;
+    $('cs-send').disabled = true;
+    inp.value = '';
+    addMsg(text, 'user');
+    history.push({role:'user', parts:[{text:text}]});
+    if(history.length > 20) history = history.slice(-20);
+    showTyping();
+    try {
+      var res = await fetch(API_URL, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          systemInstruction:{ parts:[{text:SYSTEM}] },
+          contents: history,
+          generationConfig:{ temperature:0.7, maxOutputTokens:400 }
+        })
+      });
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      var data = await res.json();
+      var c = data && data.candidates && data.candidates[0];
+      var reply = c && c.content && c.content.parts
+        ? c.content.parts.map(function(p){ return p.text || ''; }).join('').trim()
+        : '';
+      hideTyping();
+      if(reply){
+        addMsg(reply, 'bot');
+        history.push({role:'model', parts:[{text:reply}]});
+      } else {
+        addMsg(FALLBACK, 'bot');
+      }
+    } catch(e){
+      hideTyping();
+      addMsg(FALLBACK, 'bot');
+    }
+    busy = false;
+    $('cs-send').disabled = false;
+  }
+
+  $('cs-fab').addEventListener('click', function(){ setOpen(true); });
+  $('cs-close').addEventListener('click', function(){ setOpen(false); });
+  $('cs-send').addEventListener('click', sendMsg);
+  $('cs-input').addEventListener('keydown', function(e){ if(e.key === 'Enter') sendMsg(); });
+})();
+</script>
+<script>
+/* ================= Auth wajib customer (Firebase) ================= */
+window.authUser = null;
+window.ktAuthAktif = false;
+function updateScBadge(){
+  var n = 0, k;
+  for(k in surchState){ if(surchState[k]) n++; }
+  var b = document.getElementById('sc-badge');
+  if(!b) return;
+  b.hidden = (n === 0);
+  b.textContent = n ? n + ' aktif' : '';
+}
+function setScOpen(open){
+  var w = document.getElementById('sc-chips');
+  var h = document.getElementById('sc-toggle');
+  if(!w || !h) return;
+  w.hidden = !open;
+  h.classList.toggle('open', !!open);
+  h.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+(function(){
+  function $(id){ return document.getElementById(id); }
+  var mode = 'masuk';
+  function auth(){ return firebase.auth(); }
+  function showOverlay(){ $('auth-overlay').hidden = false; document.body.style.overflow = 'hidden'; }
+  function hideOverlay(){ $('auth-overlay').hidden = true; document.body.style.overflow = ''; }
+  window.tampilkanAuth = showOverlay;
+
+  function errMsg(code){
+    switch(code){
+      case 'auth/user-not-found': return 'Email belum terdaftar. Daftar dulu ya.';
+      case 'auth/wrong-password':
+      case 'auth/invalid-credential': return 'Email atau password salah.';
+      case 'auth/email-already-in-use': return 'Email sudah terdaftar, silakan masuk.';
+      case 'auth/weak-password': return 'Password minimal 6 karakter ya.';
+      case 'auth/invalid-email': return 'Format email tidak valid.';
+      case 'auth/operation-not-allowed': return 'Metode login ini belum diaktifkan admin.';
+      case 'auth/network-request-failed': return 'Koneksi bermasalah, coba lagi ya.';
+      case 'auth/popup-closed-by-user': return 'Login Google dibatalkan.';
+      case 'auth/invalid-phone-number': return 'Nomor HP tidak valid. Contoh: 089632166974';
+      case 'auth/invalid-verification-code': return 'Kode salah, coba lagi.';
+      case 'auth/code-expired': return 'Kode kedaluwarsa, kirim ulang ya.';
+      case 'auth/too-many-requests': return 'Terlalu banyak percobaan, coba lagi nanti.';
+      case 'auth/quota-exceeded': return 'Kuota SMS habis, coba lagi nanti.';
+      case 'auth/captcha-check-failed': return 'Verifikasi keamanan gagal, muat ulang halaman.';
+      default: return 'Terjadi kesalahan, coba lagi ya.';
+    }
+  }
+  function showErr(t){ var e = $('auth-err'); e.textContent = t || ''; e.style.display = t ? 'block' : 'none'; }
+  function setMode(m){
+    mode = m;
+    $('tab-masuk').classList.toggle('active', m === 'masuk');
+    $('tab-daftar').classList.toggle('active', m === 'daftar');
+    $('auth-submit').textContent = m === 'masuk' ? 'Masuk' : 'Daftar';
+    showErr('');
+  }
+  async function loginGoogle(){
+    showErr('');
+    var btn = $('auth-google'); btn.disabled = true;
+    try{
+      var provider = new firebase.auth.GoogleAuthProvider();
+      try { await auth().signInWithPopup(provider); }
+      catch(e){
+        if(e && (e.code === 'auth/popup-blocked' || e.code === 'auth/popup-closed-by-user')){
+          await auth().signInWithRedirect(provider);
+          return;
+        }
+        throw e;
+      }
+    }catch(e){ showErr(errMsg(e && e.code)); }
+    btn.disabled = false;
+  }
+  async function submitEmail(){
+    var email = $('auth-email').value.trim();
+    var pass = $('auth-pass').value;
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showErr('Isi email yang valid ya.'); return; }
+    if(pass.length < 6){ showErr('Password minimal 6 karakter ya.'); return; }
+    showErr('');
+    var btn = $('auth-submit'); btn.disabled = true; btn.textContent = 'Tunggu…';
+    try{
+      if(mode === 'daftar') await auth().createUserWithEmailAndPassword(email, pass);
+      else await auth().signInWithEmailAndPassword(email, pass);
+    }catch(e){ showErr(errMsg(e && e.code)); }
+    btn.disabled = false; btn.textContent = mode === 'masuk' ? 'Masuk' : 'Daftar';
+  }
+  function renderChip(){
+    var u = window.authUser, chip = $('auth-chip');
+    if(!u){ chip.style.display = 'none'; return; }
+    chip.style.display = 'inline-flex';
+    $('auth-chip-nama').textContent = '👤 ' + (u.displayName || u.phoneNumber || String(u.email || '').split('@')[0] || 'Customer');
+  }
+  function onAuth(u){
+    window.authUser = u;
+    renderChip();
+    if(u){
+      hideOverlay();
+      var nm = $('f-nama');
+      if(nm && !nm.value.trim() && u.displayName) nm.value = u.displayName;
+    }else if(window.ktAuthAktif){
+      showOverlay();
+    }
+  }
+  function init(){
+    if(!window.firebase || !firebase.apps.length) return;
+    window.ktAuthAktif = true;
+    try{
+      auth().getRedirectResult().catch(function(){});
+      auth().onAuthStateChanged(onAuth);
+    }catch(e){ window.ktAuthAktif = false; }
+  }
+
+  // Lipatan biaya tambahan (opsional)
+  var sct = $('sc-toggle');
+  function scFlip(){ setScOpen($('sc-chips').hidden); }
+  sct.addEventListener('click', scFlip);
+  sct.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); scFlip(); } });
+  updateScBadge();
+
+  /* ===== Login No HP (OTP SMS) ===== */
+  var verifier = null, confirmationResult = null, phoneTerkirim = '', resendTimer = null;
+  function normalizePhone(raw){
+    var d = String(raw || '').replace(/\D/g, '');
+    if(d.charAt(0) === '0') d = '62' + d.slice(1);
+    else if(d.indexOf('62') === 0) d = d;
+    else if(d.charAt(0) === '8') d = '62' + d;
+    else return null;
+    if(!/^628\d{7,12}$/.test(d)) return null;
+    return '+' + d;
+  }
+  function getVerifier(){
+    if(verifier) return verifier;
+    verifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
+    return verifier;
+  }
+  function resetVerifier(){
+    try{ if(verifier && verifier.clear) verifier.clear(); }catch(e){}
+    verifier = null;
+  }
+  function startResendCountdown(){
+    var b = $('auth-otp-resend'), left = 60;
+    clearInterval(resendTimer);
+    b.disabled = true; b.textContent = 'Kirim ulang (60)';
+    resendTimer = setInterval(function(){
+      left--;
+      if(left <= 0){ clearInterval(resendTimer); b.disabled = false; b.textContent = 'Kirim ulang kode'; }
+      else b.textContent = 'Kirim ulang (' + left + ')';
+    }, 1000);
+  }
+  function showPhoneStep(n){
+    $('auth-phone-step1').style.display = n === 1 ? 'block' : 'none';
+    $('auth-phone-step2').style.display = n === 2 ? 'block' : 'none';
+  }
+  async function kirimKode(isResend){
+    showErr('');
+    var phone = normalizePhone($('auth-phone').value);
+    if(!phone){ showErr(errMsg('auth/invalid-phone-number')); return; }
+    var btn = isResend ? $('auth-otp-resend') : $('auth-phone-send');
+    var label = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Mengirim…';
+    try{
+      confirmationResult = await auth().signInWithPhoneNumber(phone, getVerifier());
+      phoneTerkirim = phone;
+      showPhoneStep(2);
+      $('auth-otp-label').textContent = 'Kode dikirim via SMS ke ' + phone;
+      $('auth-otp').value = '';
+      startResendCountdown();
+      setTimeout(function(){ try{ $('auth-otp').focus(); }catch(e){} }, 300);
+    }catch(e){
+      resetVerifier();
+      showErr(errMsg(e && e.code));
+      btn.disabled = false; btn.textContent = label;
+    }
+  }
+  async function verifikasiOtp(){
+    var kode = $('auth-otp').value.replace(/\D/g, '');
+    if(kode.length !== 6){ showErr('Kode OTP 6 digit ya.'); return; }
+    if(!confirmationResult){ showErr(errMsg('auth/code-expired')); return; }
+    showErr('');
+    var btn = $('auth-otp-verify'); btn.disabled = true; btn.textContent = 'Memeriksa…';
+    try{
+      await confirmationResult.confirm(kode);
+      /* onAuthStateChanged -> onAuth() menutup overlay */
+    }catch(e){ showErr(errMsg(e && e.code)); }
+    btn.disabled = false; btn.textContent = 'Verifikasi';
+  }
+
+  $('auth-google').addEventListener('click', loginGoogle);
+  $('auth-submit').addEventListener('click', submitEmail);
+  $('auth-pass').addEventListener('keydown', function(e){ if(e.key === 'Enter') submitEmail(); });
+  $('auth-email').addEventListener('keydown', function(e){ if(e.key === 'Enter') submitEmail(); });
+  $('tab-masuk').addEventListener('click', function(){ setMode('masuk'); });
+  $('tab-daftar').addEventListener('click', function(){ setMode('daftar'); });
+  $('auth-keluar').addEventListener('click', function(){ try{ auth().signOut(); }catch(e){} });
+  $('auth-phone-toggle').addEventListener('click', function(){
+    var box = $('auth-phone-box');
+    var buka = box.style.display === 'none' || !box.style.display;
+    box.style.display = buka ? 'block' : 'none';
+    if(buka){ showPhoneStep(1); showErr(''); resetVerifier(); confirmationResult = null; }
+  });
+  $('auth-phone-send').addEventListener('click', function(){ kirimKode(false); });
+  $('auth-phone').addEventListener('keydown', function(e){ if(e.key === 'Enter') kirimKode(false); });
+  $('auth-otp-verify').addEventListener('click', verifikasiOtp);
+  $('auth-otp').addEventListener('keydown', function(e){ if(e.key === 'Enter') verifikasiOtp(); });
+  $('auth-otp-resend').addEventListener('click', function(){ kirimKode(true); });
+  $('auth-phone-change').addEventListener('click', function(){
+    clearInterval(resendTimer);
+    confirmationResult = null; showPhoneStep(1); showErr('');
+  });
+
+  // Daftarkan SETELAH boot() agar initFirebase() sudah jalan duluan
+  document.addEventListener('DOMContentLoaded', init);
+})();
 </script>
 </body>
 </html>
