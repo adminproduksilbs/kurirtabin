@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>KurirKu LIVE — Dashboard Kurir</title>
+<title>KURIR TABIN LIVE — Dashboard Kurir</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -241,6 +241,7 @@
         <div class="set-row"><label>Jasa belanja /titik (Rp)</label><input class="f-input" id="set-shopFeePerStop" type="number" min="0"></div>
         <div class="set-row"><label>Kelebihan jarak /km (Rp)</label><input class="f-input" id="set-extraPerKm" type="number" min="0"></div>
         <button class="btn btn-primary btn-block mt12" id="btn-save-set" type="button">💾 Simpan Tarif</button>
+        <div class="hint">Perubahan berlaku untuk semua perangkat.</div>
       </div>
       <div class="card">
         <h3>📋 Tabel tarif</h3>
@@ -342,17 +343,23 @@ function serviceBadge(service){
   return '<span class="badge svc-badge">' + L.icon + ' ' + esc(L.nama) + '</span>';
 }
 
-/* ================= Settings lokal ================= */
-const SET_KEY = 'kurirku_live_settings';
-function loadSettings(){
-  try{
-    const raw = localStorage.getItem(SET_KEY);
-    if(raw) return Object.assign({}, DEFAULT_SETTINGS, JSON.parse(raw));
-  }catch(e){}
-  return Object.assign({}, DEFAULT_SETTINGS);
+/* ================= Tarif terpusat (Firebase /settings/tarif) ================= */
+const TARIF_PATH = '/settings/tarif';
+let settings = Object.assign({}, DEFAULT_SETTINGS);
+function pasangListenerTarif(){
+  if(!db) return;
+  db.ref(TARIF_PATH).on('value', snap => {
+    const v = snap.val();
+    if(v && typeof v === 'object'){
+      settings = Object.assign({}, DEFAULT_SETTINGS, v);
+    }else{
+      // seed sekali bila belum ada (idempotent)
+      try{ db.ref(TARIF_PATH).set(DEFAULT_SETTINGS); }catch(e){}
+      settings = Object.assign({}, DEFAULT_SETTINGS);
+    }
+    isiFormSettings(); renderTabelTarif();
+  });
 }
-let settings = loadSettings();
-function saveSettings(){ try{ localStorage.setItem(SET_KEY, JSON.stringify(settings)); }catch(e){} }
 
 /* ================= Firebase ================= */
 let db = null;
@@ -597,7 +604,7 @@ function kartuMasuk(o, id){
     + fareRincianHtml(o)
     + '<div class="btn-row">'
     + '<button class="btn btn-primary btn-sm" onclick="ambilOrder(\'' + id + '\')"' + (off ? ' disabled' : '') + '>✋ Ambil Order</button>'
-    + '<a class="btn btn-wa btn-sm" target="_blank" href="' + waLink(o.customerPhone, 'Halo, saya kurir KurirKu. Order ' + o.code + ' saya ambil ya.') + '">💬 Chat Customer</a>'
+    + '<a class="btn btn-wa btn-sm" target="_blank" href="' + waLink(o.customerPhone, 'Halo, saya kurir KURIR TABIN. Order ' + o.code + ' saya ambil ya.') + '">💬 Chat Customer</a>'
     + '</div>' + (off ? '<div class="hint">Aktifkan status ONLINE untuk mengambil order.</div>' : '') + '</div>';
 }
 
@@ -789,7 +796,7 @@ function renderAktifDetail(){
 }
 function waTextKurir(o){
   const L = LAYANAN[o.service] || LAYANAN.barang;
-  return 'Halo, saya kurir KurirKu untuk order ' + o.code + ' (' + L.nama + '). Status: ' + statusLabel(o.status, o.service) + '.';
+  return 'Halo, saya kurir KURIR TABIN untuk order ' + o.code + ' (' + L.nama + '). Status: ' + statusLabel(o.status, o.service) + '.';
 }
 
 /* ================= Riwayat ================= */
@@ -832,7 +839,7 @@ function renderTabelTarif(){
     ['📦 Antar Barang (≤5 kg)', '10rb', '14rb', '18rb', '—'],
     ['🛵 Antar Penumpang', '8rb', '12rb', '16rb', '20rb'],
     ['🍱 Antar Makanan', '10rb', '14rb', '18rb', '22rb'],
-    ['🛒 Titip Beli', '= makanan + jasa Rp4rb/titik', '', '', '']
+    ['🛒 Titip Beli', '= makanan + jasa ' + rp(settings.shopFeePerStop) + '/titik', '', '', '']
   ];
   let h = '<table class="tarif-tbl"><tr><th>Layanan</th><th>1–3 km</th><th>4–5 km</th><th>6–8 km</th><th>9–10 km</th></tr>';
   rows.forEach(r => { h += '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td><td>' + r[3] + '</td><td>' + r[4] + '</td></tr>'; });
@@ -848,8 +855,15 @@ function simpanSettings(){
     const v = parseFloat($('set-' + k).value);
     if(!isNaN(v) && v >= 0) settings[k] = v;
   });
-  saveSettings(); renderTabelTarif();
-  toast('Tarif tersimpan ✅');
+  if(db){
+    db.ref(TARIF_PATH).set(settings).then(
+      () => toast('Tarif tersimpan & berlaku untuk semua perangkat ✅'),
+      () => toast('Gagal menyimpan — cek koneksi')
+    );
+  }else{
+    toast('Belum terhubung ke Firebase');
+  }
+  renderTabelTarif();
 }
 function simpanProfil(){
   const a = getAuth(); if(!a) return;
@@ -894,6 +908,7 @@ function boot(){
     $('fb-status').innerHTML = '⚠️ <b>Belum terhubung.</b> Ikuti README.md langkah 1–4.';
   }else{
     $('fb-status').innerHTML = '✅ <b>Terhubung ke Firebase Realtime Database.</b>';
+    pasangListenerTarif();
   }
   $('btn-reg').addEventListener('click', daftarKurir);
   $('btn-login').addEventListener('click', masukKurir);

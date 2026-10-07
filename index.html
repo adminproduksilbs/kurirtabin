@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>KurirKu LIVE — Pesan Antar Tanjung Bintang</title>
+<title>KURIR TABIN LIVE — Pesan Antar Tanjung Bintang</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -117,7 +117,7 @@
 <div class="fb-banner" id="firebase-banner"><b>⚠️ Firebase belum dikonfigurasi</b>Order tidak bisa tersimpan &amp; live tracking tidak jalan. Ikuti <b>README.md langkah 1–4</b> untuk menghubungkan project Firebase kamu. Peta tetap bisa dicoba.</div>
 <div class="app">
   <header class="hdr">
-    <h1><span class="live-dot"></span>🛵 KurirKu</h1>
+    <h1><span class="live-dot"></span>🛵 KURIR TABIN</h1>
     <p>Tanjung Bintang • Antar barang, penumpang, makanan &amp; titip beli</p>
   </header>
   <main>
@@ -145,7 +145,7 @@
           <textarea class="f-input" id="f-barang" placeholder="cth: 2 kotak dimsum mentai"></textarea>
           <label class="f-label">Berat (kg)</label>
           <input class="f-input" id="f-berat" type="number" min="0" step="0.5" placeholder="cth: 3">
-          <div class="hint">Gratis s/d 5 kg. Lebih dari itu +Rp3.000/kg (bisa diubah di Pengaturan).</div>
+          <div class="hint">Gratis s/d 5 kg. Lebih dari itu +Rp3.000/kg (diatur oleh admin kurir).</div>
         </div>
         <div id="flds-penumpang" style="display:none">
           <label class="f-label">Nama penumpang</label>
@@ -213,15 +213,7 @@
     <section class="panel" id="tab-set">
       <div class="card">
         <h3>⚙️ Tarif &amp; biaya tambahan</h3>
-        <div class="set-row"><label>🌧 Hujan (Rp)</label><input class="f-input" id="set-hujanFee" type="number" min="0"></div>
-        <div class="set-row"><label>🕐 Jam sibuk (%)</label><input class="f-input" id="set-sibukPct" type="number" min="0" max="100"></div>
-        <div class="set-row"><label>🌙 Jam malam (Rp)</label><input class="f-input" id="set-malamFee" type="number" min="0"></div>
-        <div class="set-row"><label>🕳 Jalan rusak (Rp)</label><input class="f-input" id="set-rusakFee" type="number" min="0"></div>
-        <div class="set-row"><label>Overload barang /kg (Rp)</label><input class="f-input" id="set-overloadPerKg" type="number" min="0"></div>
-        <div class="set-row"><label>Jasa belanja /titik (Rp)</label><input class="f-input" id="set-shopFeePerStop" type="number" min="0"></div>
-        <div class="set-row"><label>Kelebihan jarak /km (Rp)</label><input class="f-input" id="set-extraPerKm" type="number" min="0"></div>
-        <button class="btn btn-primary btn-block mt12" id="btn-save-set" type="button">💾 Simpan</button>
-        <div class="hint">Tersimpan di HP ini saja.</div>
+        <div class="hint">Tarif diatur oleh admin kurir dan otomatis berlaku untuk semua perangkat. Nilai di bawah selalu mengikuti pengaturan terbaru.</div>
       </div>
       <div class="card">
         <h3>📋 Tabel tarif</h3>
@@ -368,17 +360,24 @@ function trackLabel(status, service){
 }
 const ACTIVE_STATUS = ['diterima', 'dijemput', 'diantar'];
 
-/* ================= Settings lokal ================= */
-const SET_KEY = 'kurirku_live_settings';
-function loadSettings(){
-  try{
-    const raw = localStorage.getItem(SET_KEY);
-    if(raw) return Object.assign({}, DEFAULT_SETTINGS, JSON.parse(raw));
-  }catch(e){}
-  return Object.assign({}, DEFAULT_SETTINGS);
+/* ================= Tarif terpusat (Firebase /settings/tarif) ================= */
+const TARIF_PATH = '/settings/tarif';
+let settings = Object.assign({}, DEFAULT_SETTINGS);
+function pasangListenerTarif(){
+  if(!db) return;
+  db.ref(TARIF_PATH).on('value', snap => {
+    const v = snap.val();
+    if(v && typeof v === 'object'){
+      settings = Object.assign({}, DEFAULT_SETTINGS, v);
+    }else{
+      // seed sekali bila belum ada (idempotent)
+      try{ db.ref(TARIF_PATH).set(DEFAULT_SETTINGS); }catch(e){}
+      settings = Object.assign({}, DEFAULT_SETTINGS);
+    }
+    refreshChipLabels(); renderTabelTarif();
+    if(typeof resetHasil === 'function') resetHasil();
+  });
 }
-let settings = loadSettings();
-function saveSettings(){ try{ localStorage.setItem(SET_KEY, JSON.stringify(settings)); }catch(e){} }
 
 /* ================= Firebase ================= */
 let db = null;
@@ -849,28 +848,11 @@ function renderTabelTarif(){
     ['📦 Antar Barang (≤5 kg)', '10rb', '14rb', '18rb', '—'],
     ['🛵 Antar Penumpang', '8rb', '12rb', '16rb', '20rb'],
     ['🍱 Antar Makanan', '10rb', '14rb', '18rb', '22rb'],
-    ['🛒 Titip Beli', '= makanan + jasa Rp4rb/titik', '', '', '']
+    ['🛒 Titip Beli', '= makanan + jasa ' + rp(settings.shopFeePerStop) + '/titik', '', '', '']
   ];
   let h = '<table class="tarif-tbl"><tr><th>Layanan</th><th>1–3 km</th><th>4–5 km</th><th>6–8 km</th><th>9–10 km</th></tr>';
   rows.forEach(r => { h += '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td><td>' + r[3] + '</td><td>' + r[4] + '</td></tr>'; });
-  $('tabel-tarif').innerHTML = h + '</table><div class="hint">Jarak dibulatkan ke atas. Di atas batas tabel +Rp' + Number(settings.extraPerKm).toLocaleString('id-ID') + '/km.</div>';
-}
-function isiFormSettings(){
-  $('set-hujanFee').value = settings.hujanFee;
-  $('set-sibukPct').value = settings.sibukPct;
-  $('set-malamFee').value = settings.malamFee;
-  $('set-rusakFee').value = settings.rusakFee;
-  $('set-overloadPerKg').value = settings.overloadPerKg;
-  $('set-shopFeePerStop').value = settings.shopFeePerStop;
-  $('set-extraPerKm').value = settings.extraPerKm;
-}
-function simpanSettings(){
-  ['hujanFee','sibukPct','malamFee','rusakFee','overloadPerKg','shopFeePerStop','extraPerKm'].forEach(k => {
-    const v = parseFloat($('set-' + k).value);
-    if(!isNaN(v) && v >= 0) settings[k] = v;
-  });
-  saveSettings(); refreshChipLabels(); renderTabelTarif(); resetHasil();
-  toast('Pengaturan tersimpan ✅');
+  $('tabel-tarif').innerHTML = h + '</table><div class="hint">Jarak dibulatkan ke atas. Di atas batas tabel +' + rp(settings.extraPerKm) + '/km.</div>';
 }
 
 /* ================= Boot ================= */
@@ -881,6 +863,7 @@ function boot(){
     $('set-status').innerHTML = '⚠️ <b>Belum terhubung.</b> Ikuti README.md langkah 1–4.';
   }else{
     $('set-status').innerHTML = '✅ <b>Terhubung ke Firebase Realtime Database.</b> Order tersimpan &amp; live tracking aktif.';
+    pasangListenerTarif();
   }
   // service picker
   ['barang','penumpang','makanan','titip'].forEach(k => {
@@ -900,10 +883,9 @@ function boot(){
   $('nav-baru').addEventListener('click', () => switchTab('baru'));
   $('nav-saya').addEventListener('click', () => switchTab('saya'));
   $('nav-set').addEventListener('click', () => switchTab('set'));
-  // settings
-  $('btn-save-set').addEventListener('click', simpanSettings);
+  // settings (read-only di aplikasi customer)
   $('btn-clear-my').addEventListener('click', () => { if(confirm('Hapus daftar order di HP ini? (data di server tetap ada)')){ clearMyOrders(); toast('Daftar dibersihkan'); } });
-  refreshChipLabels(); isiFormSettings(); renderTabelTarif(); setService('barang'); setMode('jemput');
+  refreshChipLabels(); renderTabelTarif(); setService('barang'); setMode('jemput');
   initCustMap();
   pasangListenerSaya();
   window.batalkanOrder = batalkanOrder;
