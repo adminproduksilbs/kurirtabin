@@ -719,13 +719,14 @@ const TARIF_PATH = '/settings/tarif';
 let settings = Object.assign({}, DEFAULT_SETTINGS);
 let db = null;
 
+function cfgValid(c){ return !!(c && c.databaseURL && /^https:\/\/[a-z0-9-]+-default-rtdb(\.[a-z0-9-]+)?\.firebasedatabase\.app\/?$/.test(String(c.databaseURL)) && c.apiKey && String(c.apiKey).indexOf('PASTE_') === -1 && String(c.apiKey).indexOf('nama-project') === -1 && String(c.databaseURL).indexOf('nama-project') === -1); }
 function getEffectiveFirebaseConfig(){
   try{
     const manual = JSON.parse(localStorage.getItem(FB_MANUAL_KEY) || 'null');
     if(manual && manual.databaseURL) return manual;
   }catch(e){}
   const c = window.FIREBASE_CONFIG || {};
-  if(c.databaseURL && String(c.databaseURL).indexOf('PASTE_') === -1) return c;
+  if(cfgValid(c)) return c;
   return null;
 }
 function initFirebase(){
