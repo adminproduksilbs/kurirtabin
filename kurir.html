@@ -166,6 +166,22 @@
 
   .bs-overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(2px);z-index:300;display:none;align-items:flex-end;justify-content:center}
   .bs-overlay.open{display:flex;animation:fade .18s ease}
+  /* ===== CHAT ORDER (driver <-> customer) ===== */
+  .oc-panel{position:fixed;left:50%;transform:translateX(-50%) translateY(12px);bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100% - 32px);max-width:448px;height:min(65vh,520px);background:#fff;border-radius:20px;box-shadow:0 16px 48px rgba(2,44,34,.25);z-index:350;display:none;flex-direction:column;overflow:hidden;opacity:0;transition:opacity .18s,transform .18s}
+  .oc-panel.open{display:flex;opacity:1;transform:translateX(-50%) translateY(0)}
+  .oc-head{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#059669,#0d9488);color:#fff;padding:12px 14px}
+  .oc-head .t{font-weight:800;font-size:14px}
+  .oc-head .s{font-size:11px;opacity:.85}
+  .oc-close{margin-left:auto;border:0;background:rgba(255,255,255,.18);color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer}
+  .oc-body{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:#f8fafc}
+  .oc-msg{max-width:85%;padding:9px 12px;border-radius:14px;font-size:13.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
+  .oc-me{background:#059669;color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+  .oc-them{background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-bottom-left-radius:4px;align-self:flex-start}
+  .oc-meta{font-size:10.5px;opacity:.7;margin-top:3px}
+  .oc-empty{color:#64748b;font-size:13px;text-align:center;padding:20px 10px}
+  .oc-foot{display:flex;gap:8px;padding:10px;border-top:1px solid #e2e8f0;background:#fff}
+  .oc-input{flex:1;border:1.5px solid #e2e8f0;border-radius:12px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none}
+  .oc-send{border:0;background:#059669;color:#fff;width:44px;height:44px;border-radius:12px;font-size:18px;cursor:pointer;flex-shrink:0}
   .bs-sheet{background:#fff;width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:14px 18px calc(22px + env(safe-area-inset-bottom));max-height:86vh;overflow-y:auto;box-shadow:0 -10px 40px rgba(0,0,0,.25);animation:slideUp .22s ease}
   @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
   .bs-handle{width:42px;height:5px;background:#cbd5e1;border-radius:999px;margin:0 auto 12px}
@@ -432,6 +448,14 @@
           </div>
           <span class="gj-arr">›</span>
         </button>
+        <a class="gj-item" href="index.html">
+          <div class="gj-ic" style="background:#dcfce7">🧾</div>
+          <div class="gj-txt">
+            <div class="gj-title">Kamu Customer? Buka Aplikasi Customer</div>
+            <div class="gj-desc">Aplikasi terpisah untuk pesan antar</div>
+          </div>
+          <span class="gj-arr">›</span>
+        </a>
       </div>
     </div>
   </section>
@@ -519,6 +543,19 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Panel Chat Order (driver <-> customer) -->
+<div class="oc-panel" id="oc-panel" aria-hidden="true">
+  <div class="oc-head">
+    <div><div class="t" id="oc-title">💬 Chat Customer</div><div class="s" id="oc-sub">Order -</div></div>
+    <button class="oc-close" id="oc-close" aria-label="Tutup">✕</button>
+  </div>
+  <div class="oc-body" id="oc-body"></div>
+  <div class="oc-foot">
+    <input class="oc-input" id="oc-input" placeholder="Tulis pesan ke customer..." autocomplete="off" maxlength="500">
+    <button class="oc-send" id="oc-send" aria-label="Kirim">➤</button>
+  </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -1167,7 +1204,8 @@ function renderBerandaDock(){
   $('aktif-nav-links').innerHTML =
     '<a class="btn btn-map btn-sm" style="flex:1" target="_blank" href="' + gmapsDirLink(o.pickup.lat, o.pickup.lng) + '">🗺️ Rute ' + esc(m.la) + '</a>'
     + '<a class="btn btn-map btn-sm" style="flex:1" target="_blank" href="' + gmapsDirLink(o.dest.lat, o.dest.lng) + '">🏁 Rute ' + esc(m.lb) + '</a>'
-    + '<a class="btn btn-wa btn-sm" target="_blank" href="' + waLink(o.customerPhone, 'Halo Kak ' + (o.customerName||'') + ', saya driver KURIR TABIN untuk order *' + o.code + '*.') + '">💬 WA</a>';
+    + '<a class="btn btn-wa btn-sm" target="_blank" href="' + waLink(o.customerPhone, 'Halo Kak ' + (o.customerName||'') + ', saya driver KURIR TABIN untuk order *' + o.code + '*.') + '">💬 WA</a>'
+    + '<button class="btn btn-primary btn-sm" style="flex:1" onclick="bukaChatOrderDriver(\'' + activeOrderId + '\')">💬 Chat Customer</button>';
 
   const aksi = aksiBerikutnya(o);
   let h = aksi.map(a => '<button class="btn ' + a.cls + '" onclick="ubahStatus(\'' + activeOrderId + '\',\'' + a.st + '\')">' + esc(a.label) + '</button>').join('');
@@ -1333,9 +1371,63 @@ function boot(){
   window.ubahStatus = ubahStatus;
   window.tutupModalBid = tutupModalBid;
   window.switchSubtab = switchSubtab;
+  window.bukaChatOrderDriver = bukaChatOrderDriver;
   tampilAuth();
 }
 document.addEventListener('DOMContentLoaded', boot);
+
+/* ============ CHAT ORDER (driver <-> customer, via Firebase RTDB) ============ */
+let ocOrderId = null, ocListener = null;
+function bukaChatOrderDriver(orderId){
+  const o = allOrders[orderId];
+  if(!o){ toast('Order tidak ditemukan'); return; }
+  ocOrderId = orderId;
+  $('oc-title').textContent = '💬 Chat Customer — ' + (o.customerName || 'Pelanggan');
+  $('oc-sub').textContent = 'Order ' + (o.code || orderId.slice(-6));
+  $('oc-panel').classList.add('open');
+  $('oc-panel').setAttribute('aria-hidden', 'false');
+  $('oc-body').innerHTML = '<div class="oc-empty">Memuat pesan…</div>';
+  if(ocListener && db){ try{ db.ref('chats/' + ocOrderId + '/messages').off('child_added', ocListener); }catch(e){} }
+  ocListener = snap => { const m = snap.val(); if(m) ocRenderMsgDriver(snap.key, m); };
+  if(db){
+    db.ref('chats/' + orderId + '/messages').limitToLast(50).on('child_added', ocListener);
+  } else {
+    $('oc-body').innerHTML = '<div class="oc-empty">Belum tersambung ke Firebase — chat butuh koneksi.</div>';
+  }
+}
+function ocRenderMsgDriver(key, m){
+  const body = $('oc-body');
+  if(body.querySelector('.oc-empty')) body.innerHTML = '';
+  if(body.querySelector('[data-msg="' + key + '"]')) return;
+  const d = document.createElement('div');
+  const mine = m.from === 'courier';
+  d.className = 'oc-msg ' + (mine ? 'oc-me' : 'oc-them');
+  d.setAttribute('data-msg', key);
+  d.innerHTML = '<div>' + esc(m.text || '') + '</div><div class="oc-meta">' + esc(m.fromName || (mine ? 'Saya' : 'Customer')) + ' • ' + esc(fmtTgl(m.at)) + '</div>';
+  body.appendChild(d);
+  body.scrollTop = body.scrollHeight;
+}
+function kirimChatOrderDriver(){
+  const inp = $('oc-input');
+  const text = inp.value.trim();
+  if(!text || !ocOrderId) return;
+  if(!db){ toast('Belum tersambung ke Firebase'); return; }
+  const a = getAuth() || {};
+  const nama = a.name || 'Driver';
+  inp.value = '';
+  db.ref('chats/' + ocOrderId + '/messages').push({
+    from: 'courier', fromName: nama, text: text.slice(0, 500), at: new Date().toISOString()
+  }).catch(() => toast('Gagal mengirim pesan — cek koneksi'));
+}
+function tutupChatOrderDriver(){
+  $('oc-panel').classList.remove('open');
+  $('oc-panel').setAttribute('aria-hidden', 'true');
+  if(ocListener && db && ocOrderId){ try{ db.ref('chats/' + ocOrderId + '/messages').off('child_added', ocListener); }catch(e){} }
+  ocOrderId = null; ocListener = null;
+}
+$('oc-close').addEventListener('click', tutupChatOrderDriver);
+$('oc-send').addEventListener('click', kirimChatOrderDriver);
+$('oc-input').addEventListener('keydown', e => { if(e.key === 'Enter') kirimChatOrderDriver(); });
 </script>
 </body>
 </html>
