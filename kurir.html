@@ -15,8 +15,6 @@
   }
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);-webkit-tap-highlight-color:transparent;overflow-x:hidden}
   .app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;padding-bottom:76px}
-
-  /* Banner Peringatan Firebase */
   .fb-banner{display:none;background:#fef3c7;color:#92400e;font-size:12px;padding:8px 14px;line-height:1.4;border-bottom:1px solid #fde68a;position:relative;z-index:200}
   .fb-banner.show{display:block}
 
@@ -32,16 +30,13 @@
   .pin-input{letter-spacing:10px;text-align:center;font-size:24px;font-weight:800}
   .err{color:#dc2626;font-size:12.5px;font-weight:700;min-height:18px;margin-top:8px}
 
-  /* ===== TAB PANELS ===== */
   .panel{display:none}
   .panel.active{display:block;animation:fade .2s ease}
   @keyframes fade{from{opacity:0}to{opacity:1}}
 
-  /* ===== TAB 1: BERANDA PETA RADAR FULLSCREEN ALA GOJEK DRIVER ===== */
+  /* ===== TAB 1: BERANDA PETA RADAR FULLSCREEN ===== */
   .radar-wrap{position:relative;height:calc(100vh - 68px);width:100%;overflow:hidden;background:#cbd5e1}
   #radar-map{height:100%;width:100%;z-index:1}
-
-  /* Top Floating Bar (Avatar + Toggle ON-BID) */
   .gp-topbar{position:absolute;top:12px;left:12px;right:12px;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:8px;pointer-events:none}
   .gp-topbar > *{pointer-events:auto}
   .gp-prof-pill{background:#fff;border-radius:999px;padding:5px 12px 5px 6px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);cursor:pointer;max-width:54%}
@@ -50,7 +45,6 @@
   .gp-mini-name{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .gp-mini-sub{font-size:10.5px;color:var(--muted);font-weight:600}
 
-  /* Tombol Power ON-BID / OFF-BID ala GoPartner */
   .bid-btn{border:0;border-radius:999px;padding:9px 16px;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.2);font-family:inherit;transition:all .2s}
   .bid-btn.on{background:var(--go);color:#fff}
   .bid-btn.off{background:#1e293b;color:#94a3b8}
@@ -59,12 +53,10 @@
   .bid-btn.off .bid-dot{background:#ef4444}
   @keyframes pulse{50%{opacity:.4}}
 
-  /* Floating Map Controls (Kanan Peta) */
   .gp-map-tools{position:absolute;top:68px;right:12px;z-index:25;display:flex;flex-direction:column;gap:8px}
   .gp-tool-btn{width:42px;height:42px;border-radius:50%;border:0;background:#fff;color:var(--ink);font-size:18px;box-shadow:0 4px 14px rgba(0,0,0,.16);cursor:pointer;display:flex;align-items:center;justify-content:center}
   .gp-tool-btn:active{transform:scale(.93)}
 
-  /* Bottom Sheet Radar Drawer di Beranda */
   .gp-bottom-dock{position:absolute;left:0;right:0;bottom:0;z-index:30;background:#fff;border-radius:22px 22px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.15);padding:12px 16px 16px;max-height:58vh;overflow-y:auto}
   .gp-dock-handle{width:38px;height:4px;background:#cbd5e1;border-radius:999px;margin:0 auto 10px}
   .gp-status-strip{display:flex;align-items:center;justify-content:space-between;padding-bottom:10px;border-bottom:1px solid var(--line)}
@@ -76,13 +68,11 @@
   .gp-stat-item.hi{background:var(--gol);border-color:#bbf7d0}
   .gp-stat-item.hi .val{color:var(--god)}
 
-  /* Kartu Order Aktif di Beranda */
   .gp-active-box{margin-top:4px}
   .gp-step-bar{display:flex;gap:4px;margin:8px 0 10px}
   .gp-step{flex:1;height:5px;border-radius:99px;background:#e2e8f0}
   .gp-step.done{background:var(--go)}
 
-  /* ===== HEADER & LIST UNTUK TAB NON-PETA ===== */
   .sub-hdr{background:#fff;padding:16px 16px 12px;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40;display:flex;justify-content:space-between;align-items:center}
   .sub-hdr h2{font-size:18px;font-weight:800}
   .sub-body{padding:14px}
@@ -107,7 +97,6 @@
   .rincian td{padding:4px 2px;border-bottom:1px dashed var(--line);color:#334155}
   .rincian td:last-child{text-align:right;font-weight:700;white-space:nowrap}
 
-  /* Route Dots Ala Gojek (Jemput -> Antar) */
   .gp-route-box{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:8px 0}
   .gp-pt{display:flex;align-items:flex-start;gap:10px;font-size:13px;line-height:1.4}
   .gp-pt + .gp-pt{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
@@ -115,7 +104,6 @@
   .gp-pt-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase}
   .gp-pt-val{font-weight:700;color:var(--ink)}
 
-  /* Buttons */
   .btn{border:0;border-radius:14px;padding:13px 16px;font-size:14.5px;font-weight:800;cursor:pointer;font-family:inherit;transition:transform .08s;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
   .btn:active{transform:scale(.97)}
   .btn:disabled{opacity:.5;cursor:not-allowed}
@@ -134,7 +122,7 @@
   .seg button{flex:1;border:0;background:transparent;padding:8px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;color:var(--muted);font-family:inherit}
   .seg button.active{background:#fff;color:var(--god);box-shadow:0 2px 6px rgba(0,0,0,.08)}
 
-  /* ===== MODAL POPUP BID ORDER BARU (ALA GOJEK DRIVER) ===== */
+  /* ===== MODAL POPUP BID ORDER BARU ===== */
   .bid-modal{position:fixed;inset:0;z-index:400;background:rgba(15,23,42,.85);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:18px}
   .bid-modal.open{display:flex;animation:fade .18s ease}
   .bid-card{background:#111827;color:#fff;width:100%;max-width:400px;border-radius:24px;padding:20px;box-shadow:0 24px 60px rgba(0,0,0,.6);border:2px solid var(--go)}
@@ -156,7 +144,7 @@
   .gj-edit-btn{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--line);background:#f8fafc;color:var(--god);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
   .gj-sec-title{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:14px 4px 8px}
   .gj-list{background:#fff;border-radius:18px;box-shadow:var(--sh);overflow:hidden;margin-bottom:14px;border:1px solid var(--line)}
-  .gj-item{display:flex;align-items:center;gap:13px;padding:13px 15px;border-bottom:1px solid #f1f5f9;cursor:pointer;width:100%;background:none;border-top:0;border-left:0;border-right:0;text-align:left;font-family:inherit;color:inherit}
+  .gj-item{display:flex;align-items:center;gap:13px;padding:13px 15px;border-bottom:1px solid #f1f5f9;cursor:pointer;width:100%;background:none;border-top:0;border-left:0;border-right:0;text-align:left;font-family:inherit;color:inherit;text-decoration:none}
   .gj-item:last-child{border-bottom:0}
   .gj-item:active{background:#f8fafc}
   .gj-ic{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
@@ -176,7 +164,6 @@
   .tarif-tbl th,.tarif-tbl td{border:1px solid var(--line);padding:6px 8px;text-align:left}
   .tarif-tbl th{background:var(--gol);color:var(--god)}
 
-  /* Bottom Sheet Modal */
   .bs-overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(2px);z-index:300;display:none;align-items:flex-end;justify-content:center}
   .bs-overlay.open{display:flex;animation:fade .18s ease}
   .bs-sheet{background:#fff;width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:14px 18px calc(22px + env(safe-area-inset-bottom));max-height:86vh;overflow-y:auto;box-shadow:0 -10px 40px rgba(0,0,0,.25);animation:slideUp .22s ease}
@@ -186,7 +173,6 @@
   .bs-head h3{font-size:17px;font-weight:800}
   .bs-close{border:0;background:#f1f5f9;color:var(--ink);width:32px;height:32px;border-radius:50%;font-size:16px;font-weight:700;cursor:pointer}
 
-  /* ===== BOTTOM NAVBAR GOPARTNER ===== */
   .navbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid var(--line);display:flex;z-index:60;padding:5px 4px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -4px 18px rgba(0,0,0,.06)}
   .nav-btn{flex:1;border:0;background:none;cursor:pointer;font-size:11px;font-weight:700;color:var(--muted);padding:6px 2px;border-radius:12px;font-family:inherit;position:relative}
   .nav-btn .nic{font-size:21px;display:block;margin-bottom:2px}
@@ -230,7 +216,7 @@
   </div>
 </div>
 
-<!-- ============ MODAL POPUP BID ORDER BARU (ALA GOJEK DRIVER) ============ -->
+<!-- ============ MODAL POPUP BID ORDER BARU ============ -->
 <div class="bid-modal" id="bid-modal">
   <div class="bid-card">
     <div class="bid-top">
@@ -238,8 +224,8 @@
       <span style="font-size:12px;color:#9ca3af;font-weight:700" id="bid-code">KR-001</span>
     </div>
     <div style="font-size:12px;color:#9ca3af">Ongkir Bersih Mitra</div>
-    <div class="bid-fare" id="bid-fare">Rp14.000</div>
-    <div class="bid-dist" id="bid-dist">🛣️ Jarak Rute: 4,2 km • Pemesan: Budi</div>
+    <div class="bid-fare" id="bid-fare">Rp9.000</div>
+    <div class="bid-dist" id="bid-dist">🛣️ Jarak Rute: 3 km • Pemesan: Budi</div>
     <div class="bid-item-desc" id="bid-item">📦 2 Kotak Dimsum</div>
     <div class="bid-route">
       <div><span style="color:#4ade80;font-weight:800">🟢 JEMPUT:</span> <span id="bid-pickup">-</span></div>
@@ -255,10 +241,9 @@
 <!-- ============ MAIN DRIVER APP ============ -->
 <div class="app" id="app-view" style="display:none">
 
-  <!-- TAB 1: BERANDA RADAR PETA & ORDER AKTIF (ALA GOJEK DRIVER) -->
+  <!-- TAB 1: BERANDA RADAR PETA & ORDER AKTIF -->
   <section class="panel active" id="ktab-radar">
     <div class="radar-wrap">
-      <!-- Top Floating Bar -->
       <div class="gp-topbar">
         <div class="gp-prof-pill" onclick="switchSubtab('set')">
           <div class="gp-mini-av" id="top-av">KT</div>
@@ -273,20 +258,16 @@
         </button>
       </div>
 
-      <!-- Floating Map Tools -->
       <div class="gp-map-tools">
         <button type="button" class="gp-tool-btn" id="btn-center-gps" title="Pusatkan Posisi Saya">🎯</button>
         <button type="button" class="gp-tool-btn" id="btn-test-sound" title="Tes Nada Bid">🔊</button>
       </div>
 
-      <!-- Fullscreen Map -->
       <div id="radar-map"></div>
 
-      <!-- Bottom Dock: Idle Summary ATAU Active Order Sheet -->
       <div class="gp-bottom-dock">
         <div class="gp-dock-handle"></div>
 
-        <!-- Mode A: Saat Tidak Ada Order Aktif (Idle Radar) -->
         <div id="dock-idle">
           <div class="gp-status-strip">
             <div class="gp-status-txt" id="dock-status-headline">🟢 Siap Menerima Order</div>
@@ -308,7 +289,6 @@
           </div>
         </div>
 
-        <!-- Mode B: Saat Sedang Menjalankan Order Aktif -->
         <div id="dock-active" class="gp-active-box" style="display:none">
           <div class="o-head">
             <div>
@@ -319,14 +299,11 @@
               <input type="checkbox" id="bc-toggle" checked style="accent-color:var(--go)"> 📡 Live GPS
             </label>
           </div>
-
-          <!-- Progress Step Bar -->
           <div class="gp-step-bar">
             <div class="gp-step done" id="st-bar-1"></div>
             <div class="gp-step" id="st-bar-2"></div>
             <div class="gp-step" id="st-bar-3"></div>
           </div>
-
           <div id="aktif-detail"></div>
           <div class="btn-row" id="aktif-nav-links"></div>
           <div class="btn-row" id="aktif-actions"></div>
@@ -414,7 +391,7 @@
         <button type="button" class="gj-item" onclick="openSheet('sheet-tabel-tarif')">
           <div class="gj-ic purple">📋</div>
           <div class="gj-txt">
-            <div class="gj-title">Lihat Tabel Tarif Resmi</div>
+            <div class="gj-title">Lihat Tabel Tarif Resmi (Rp3.000/km)</div>
             <div class="gj-desc">Daftar tarif Barang, Ojek, Makanan &amp; Titip Beli</div>
           </div>
           <span class="gj-arr">›</span>
@@ -431,6 +408,14 @@
 
       <div class="gj-sec-title">Sistem &amp; Sesi</div>
       <div class="gj-list">
+        <a class="gj-item" href="index.html">
+          <div class="gj-ic green">🧾</div>
+          <div class="gj-txt">
+            <div class="gj-title">Lihat Halaman Pelanggan</div>
+            <div class="gj-desc">Buka tampilan pemesanan customer</div>
+          </div>
+          <span class="gj-arr">›</span>
+        </a>
         <button type="button" class="gj-item" onclick="openSheet('sheet-status')">
           <div class="gj-ic blue">🔌</div>
           <div class="gj-txt">
@@ -498,7 +483,7 @@
       <div class="set-row"><label for="set-rusakFee">🕳 Jalan rusak (Rp)</label><input class="f-input" id="set-rusakFee" type="number" min="0"></div>
       <div class="set-row"><label for="set-overloadPerKg">Overload /kg (Rp)</label><input class="f-input" id="set-overloadPerKg" type="number" min="0"></div>
       <div class="set-row"><label for="set-shopFeePerStop">Jasa belanja /titik (Rp)</label><input class="f-input" id="set-shopFeePerStop" type="number" min="0"></div>
-      <div class="set-row"><label for="set-extraPerKm">Kelebihan jarak /km (Rp)</label><input class="f-input" id="set-extraPerKm" type="number" min="0"></div>
+      <div class="set-row"><label for="set-extraPerKm">Tarif >3km /km (Rp)</label><input class="f-input" id="set-extraPerKm" type="number" min="0"></div>
       <button class="btn btn-primary btn-block mt12" id="btn-save-set" type="button">💾 Simpan Tarif ke Semua Perangkat</button>
     </div>
   </div>
@@ -525,7 +510,6 @@
     </div>
   </div>
 
-  <!-- BOTTOM NAVIGATION GOPARTNER -->
   <nav class="navbar">
     <button class="nav-btn active" id="kn-radar"><span class="nic">🗺️</span>Beranda</button>
     <button class="nav-btn" id="kn-masuk"><span class="nic">📥</span>Bid Masuk<span class="nav-badge" id="badge-masuk" style="display:none">0</span></button>
@@ -582,7 +566,6 @@ function getInitials(name){
   return parts.length > 1 ? (parts[0][0] + parts[1][0]).toUpperCase() : parts[0].slice(0,2).toUpperCase();
 }
 
-// Nada Dering Bid Khas GoPartner (Synthesizer Web Audio + Getar)
 function bunyiAlarmOrder(){
   try{
     if(navigator.vibrate) navigator.vibrate([350, 120, 350, 120, 500]);
@@ -624,7 +607,13 @@ async function aturWakeLock(on){
   }catch(e){}
 }
 
-/* ================= Tarif & Label Layanan ================= */
+/* ================= Tarif: 0-3 km = Rp3.000/km ================= */
+const TARIF = {
+  barang:    { tiers: [[1,3000],[2,6000],[3,9000]], extraKm: 3, perKm: 3000 },
+  penumpang: { tiers: [[1,3000],[2,6000],[3,9000]], extraKm: 3, perKm: 3000 },
+  makanan:   { tiers: [[1,3000],[2,6000],[3,9000]], extraKm: 3, perKm: 3000 },
+  titip:     null
+};
 const DEFAULT_SETTINGS = {
   hujanFee: 4000, sibukPct: 25, malamFee: 7500, rusakFee: 4000,
   overloadPerKg: 3000, shopFeePerStop: 4000, extraPerKm: 3000
@@ -684,15 +673,13 @@ function initFirebase(){
 function pasangListenerTarif(){
   if(!db || tarifListenerBound) return;
   tarifListenerBound = true;
-  db.ref(TARIF_PATH).on('value', snap => {
-    const v = snap.val();
-    if(v && typeof v === 'object') settings = Object.assign({}, DEFAULT_SETTINGS, v);
-    else{
-      try{ db.ref(TARIF_PATH).set(DEFAULT_SETTINGS); }catch(e){}
-      settings = Object.assign({}, DEFAULT_SETTINGS);
-    }
-    isiFormSettings(); renderTabelTarif();
-  });
+  try{
+    db.ref(TARIF_PATH).on('value', snap => {
+      const v = snap.val();
+      if(v && typeof v === 'object') settings = Object.assign({}, DEFAULT_SETTINGS, v);
+      isiFormSettings(); renderTabelTarif();
+    });
+  }catch(e){}
 }
 
 /* ================= Auth & Status ON-BID Kurir ================= */
@@ -866,13 +853,12 @@ async function updatePetaRadar(){
   }else{
     activeRouteKey = null;
     if(activeRouteLine){ try{ radarMap.removeLayer(activeRouteLine); }catch(e){} activeRouteLine = null; }
-    // Tampilkan pin semua order yang sedang menunggu di peta radar
     Object.keys(allOrders).forEach(id => {
       const w = allOrders[id];
       if(w && w.status === 'menunggu' && w.pickup && w.pickup.lat != null){
         const Lsvc = LAYANAN[w.service] || LAYANAN.barang;
         const m = L.marker([w.pickup.lat, w.pickup.lng], { icon: pinIcon(Lsvc.icon, 28) }).addTo(radarMap);
-        m.bindPopup('<b>' + esc(w.code) + ' • ' + rp(w.fareTotal) + '</b><br>' + esc(w.pickup.label) + '<br><button onclick="ambilOrder(\'' + id + '\')" style="margin-top:6px;background:#00AA13;color:#fff;border:0;padding:5px 10px;border-radius:8px;font-weight:700;cursor:pointer">✋ Ambil Bid</button>');
+        m.bindPopup('<b>' + esc(w.code) + ' • ' + rp(w.fareTotal) + '</b><br>' + esc(w.pickup.label) + '<br><button onclick="ambilOrder(\'' + id + '\', false)" style="margin-top:6px;background:#00AA13;color:#fff;border:0;padding:5px 10px;border-radius:8px;font-weight:700;cursor:pointer">✋ Ambil Bid</button>');
         radarOrderMarkers.push(m);
       }
     });
@@ -915,13 +901,8 @@ function stopWatch(){
 }
 
 /* ================= Data Layer & Modal Bid Otomatis ================= */
-let allOrders = {};
-let knownWaitingIds = null;
-let ordersListenerBound = false;
-let subtab = 'radar';
-let riwPeriod = 'hari';
-let activeOrderId = null;
-let currentBidPopupId = null;
+let allOrders = {}, knownWaitingIds = null, ordersListenerBound = false;
+let subtab = 'radar', riwPeriod = 'hari', activeOrderId = null, currentBidPopupId = null;
 
 function milikSaya(o){
   const a = getAuth();
@@ -1000,7 +981,6 @@ function pasangListenerOrders(){
       const newIds = currentWaitingIds.filter(id => !knownWaitingIds.includes(id));
       if(newIds.length > 0){
         bunyiAlarmOrder();
-        // Jika kurir sedang tidak membawa order aktif, munculkan Layar Bid Fullscreen ala Gojek!
         if(!activeOrderId){
           const newestId = newIds[0];
           tampilkanModalBid(newestId, allOrders[newestId]);
@@ -1009,7 +989,6 @@ function pasangListenerOrders(){
         }
       }
     }
-    // Jika order yang sedang tampil di popup bid sudah diambil orang lain, tutup otomatis
     if(currentBidPopupId && (!allOrders[currentBidPopupId] || allOrders[currentBidPopupId].status !== 'menunggu')){
       tutupModalBid();
     }
@@ -1127,7 +1106,7 @@ function aksiBerikutnya(o){
   const s = o.service || 'barang';
   if(o.status === 'diterima'){
     const lbl = {
-      barang:'📦 Geser / Ketuk: Barang Sudah Dijemput',
+      barang:'📦 Ketuk: Barang Sudah Dijemput',
       penumpang:'🧍 Ketuk: Penumpang Sudah Naik',
       makanan:'🍱 Ketuk: Makanan Sudah Diambil',
       titip:'🛒 Ketuk: Belanjaan Sudah Dibeli'
@@ -1176,7 +1155,6 @@ function renderBerandaDock(){
   $('aktif-code').textContent = o.code;
   $('aktif-badges').innerHTML = badge(o.status, o.service) + ' ' + serviceBadge(o.service);
 
-  // Progress bar 3 tahap
   $('st-bar-1').classList.add('done');
   $('st-bar-2').classList.toggle('done', o.status === 'dijemput' || o.status === 'diantar');
   $('st-bar-3').classList.toggle('done', o.status === 'diantar');
@@ -1257,19 +1235,20 @@ function switchSubtab(nama){
   window.scrollTo(0, 0);
 }
 function renderTabelTarif(){
+  const perKm = settings.extraPerKm || 3000;
   const rows = [
-    ['📦 Antar Barang (≤5 kg)', '10rb', '14rb', '18rb', '—'],
-    ['🛵 Antar Penumpang', '8rb', '12rb', '16rb', '20rb'],
-    ['🍱 Antar Makanan', '10rb', '14rb', '18rb', '22rb'],
-    ['🛒 Titip Beli', '= makanan + jasa ' + rp(settings.shopFeePerStop) + '/titik', '', '', '']
+    ['📦 Antar Barang (≤5 kg)', 'Rp3.000', 'Rp6.000', 'Rp9.000', '+' + rp(perKm) + '/km'],
+    ['🛵 Antar Penumpang', 'Rp3.000', 'Rp6.000', 'Rp9.000', '+' + rp(perKm) + '/km'],
+    ['🍱 Antar Makanan', 'Rp3.000', 'Rp6.000', 'Rp9.000', '+' + rp(perKm) + '/km'],
+    ['🛒 Titip Beli', 'Rp3.000/km + jasa ' + rp(settings.shopFeePerStop) + '/titik', '', '', '']
   ];
-  let h = '<table class="tarif-tbl"><tr><th>Layanan</th><th>1–3 km</th><th>4–5 km</th><th>6–8 km</th><th>9–10 km</th></tr>';
+  let h = '<table class="tarif-tbl"><tr><th>Layanan</th><th>1 km</th><th>2 km</th><th>3 km</th><th>> 3 km</th></tr>';
   rows.forEach(r => { h += '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td><td>' + r[3] + '</td><td>' + r[4] + '</td></tr>'; });
-  $('tabel-tarif').innerHTML = h + '</table><div class="hint">Jarak dibulatkan ke atas. Di atas batas tabel +Rp' + Number(settings.extraPerKm).toLocaleString('id-ID') + '/km.</div>';
+  $('tabel-tarif').innerHTML = h + '</table><div class="hint">Jarak 0–3 km dihitung Rp3.000/km (dibulatkan ke atas).</div>';
 }
 function isiFormSettings(){
   ['hujanFee','sibukPct','malamFee','rusakFee','overloadPerKg','shopFeePerStop','extraPerKm'].forEach(k => { $('set-' + k).value = settings[k]; });
-  $('gj-desc-tarif').textContent = 'Hujan ' + rp(settings.hujanFee) + ' • Malam ' + rp(settings.malamFee) + ' • Titip ' + rp(settings.shopFeePerStop);
+  $('gj-desc-tarif').textContent = '0-3km Rp3rb/km • Hujan ' + rp(settings.hujanFee) + ' • Titip ' + rp(settings.shopFeePerStop);
   const a = getAuth();
   if(a){ $('set-nama').value = a.name; $('set-wa').value = a.phone; }
 }
