@@ -205,14 +205,15 @@
   <div class="auth-card">
     <div style="font-size:46px">🎉</div>
     <h2 id="succ-title">Order Berhasil Dibuat!</h2>
-    <p class="auth-sub" id="succ-desc">Pesanan kamu sudah tercatat di sistem.</p>
+    <p class="auth-sub" id="succ-desc">Pesanan kamu sudah masuk ke Radar Kurir.</p>
     <a class="btn btn-wa btn-block mt12" id="succ-wa-btn" target="_blank" href="#">📲 Kirim Rincian ke WhatsApp Kurir</a>
+    <a class="btn btn-primary btn-block mt8" href="kurir.html">🛵 Buka Radar Driver (Tes Terima Order)</a>
     <button class="btn btn-secondary btn-block mt8" type="button" onclick="tutupModalSukses()">Lihat Status di Order Saya</button>
   </div>
 </div>
 
 <div class="fb-banner" id="firebase-banner">
-  <b>⚡ Mode Mandiri (WhatsApp Direct Aktif):</b> Kamu tetap bisa menghitung ongkir &amp; membuat pesanan. Order akan diteruskan langsung ke WhatsApp Kurir Tabin.
+  <b>⚡ Sinkronisasi Aktif:</b> Order otomatis masuk ke Radar Driver di perangkat ini &amp; WhatsApp Kurir. Untuk lintas HP berbeda, ketuk menu <b>Pengaturan &rarr; Status Server</b>.
 </div>
 
 <div class="app">
@@ -369,10 +370,18 @@
           <div class="gj-ic green">⚡</div>
           <div class="gj-txt">
             <div class="gj-title">Buat Order Tes Otomatis (1-Klik)</div>
-            <div class="gj-desc">Uji coba buat pesanan langsung masuk ke sistem</div>
+            <div class="gj-desc">Uji coba buat pesanan langsung masuk ke Radar Driver</div>
           </div>
           <span class="gj-arr">›</span>
         </button>
+        <a class="gj-item" href="kurir.html">
+          <div class="gj-ic blue">🛵</div>
+          <div class="gj-txt">
+            <div class="gj-title">Buka Aplikasi Mitra Driver (GoPartner)</div>
+            <div class="gj-desc">Buka halaman kurir untuk menerima bid order</div>
+          </div>
+          <span class="gj-arr">›</span>
+        </a>
         <button type="button" class="gj-item" onclick="document.getElementById('cs-fab').click()">
           <div class="gj-ic purple">🤖</div>
           <div class="gj-txt">
@@ -389,22 +398,14 @@
           </div>
           <span class="gj-arr">›</span>
         </a>
-        <a class="gj-item" href="kurir.html">
-          <div class="gj-ic blue">🛵</div>
-          <div class="gj-txt">
-            <div class="gj-title">Buka Aplikasi Mitra Driver (GoPartner)</div>
-            <div class="gj-desc">Khusus untuk kurir / driver Kurir Tabin</div>
-          </div>
-          <span class="gj-arr">›</span>
-        </a>
       </div>
 
-      <div class="gj-sec-title">Sistem &amp; Perangkat</div>
+      <div class="gj-sec-title">Sistem &amp; Cloud Database</div>
       <div class="gj-list">
         <button type="button" class="gj-item" onclick="openSheet('sheet-koneksi')">
           <div class="gj-ic blue">🔌</div>
           <div class="gj-txt">
-            <div class="gj-title">Status Server &amp; Database</div>
+            <div class="gj-title">Pengaturan Database Firebase (Cloud)</div>
             <div class="gj-desc" id="gj-desc-status">Memeriksa koneksi...</div>
           </div>
           <span class="gj-arr">›</span>
@@ -419,7 +420,7 @@
         </button>
       </div>
 
-      <div class="gj-ver">Kurir Tabin Live v3.2 • Tanjung Bintang, Lampung Selatan</div>
+      <div class="gj-ver">Kurir Tabin Live v3.5 • Tanjung Bintang, Lampung Selatan</div>
     </section>
   </main>
 
@@ -435,15 +436,23 @@
     </div>
   </div>
 
-  <!-- Sheet Koneksi -->
+  <!-- Sheet Koneksi & Input Firebase URL Langsung -->
   <div class="bs-overlay" id="sheet-koneksi" onclick="if(event.target===this)closeSheet('sheet-koneksi')">
     <div class="bs-sheet">
       <div class="bs-handle"></div>
       <div class="bs-head">
-        <h3>🔌 Status Koneksi Sistem</h3>
+        <h3>🔌 Koneksi Cloud Firebase</h3>
         <button class="bs-close" type="button" onclick="closeSheet('sheet-koneksi')">✕</button>
       </div>
       <div class="o-meta" id="set-status">Memeriksa…</div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
+        <label class="f-label" for="inp-fb-url">URL Realtime Database Firebase (Opsional):</label>
+        <input class="f-input" id="inp-fb-url" placeholder="https://nama-project-default-rtdb.asia-southeast1.firebasedatabase.app">
+        <label class="f-label" for="inp-fb-key">API Key Firebase (Opsional):</label>
+        <input class="f-input" id="inp-fb-key" placeholder="AIzaSy...">
+        <div class="hint">Jika diisi, aplikasi langsung tersambung lintas HP meskipun file <code>firebase-config.js</code> belum diedit.</div>
+        <button class="btn btn-primary btn-block mt12" type="button" onclick="simpanKonfigFirebaseManual()">💾 Hubungkan Firebase Sekarang</button>
+      </div>
     </div>
   </div>
 
@@ -480,8 +489,18 @@
 <script src="firebase-config.js" onerror="window.FIREBASE_CONFIG_MISSING=true"></script>
 
 <script>
-/* ================= Helpers ================= */
+/* ================= Helpers & Real-Time Broadcast Channel ================= */
 const ADMIN_WA = '6289632166974';
+const MY_KEY = 'kurirku_live_myorders';
+const MY_LOCAL_DATA_KEY = 'kurirku_local_order_data';
+const FB_MANUAL_KEY = 'kurirtabin_fb_manual';
+let bcChannel = null;
+try{ if('BroadcastChannel' in window) bcChannel = new BroadcastChannel('kurirtabin_sync'); }catch(e){}
+
+function notifySync(){
+  try{ if(bcChannel) bcChannel.postMessage({ type: 'order_updated', ts: Date.now() }); }catch(e){}
+}
+
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function rp(n){ return 'Rp' + Math.round(Number(n) || 0).toLocaleString('id-ID'); }
@@ -660,23 +679,48 @@ function trackLabel(status, service){
 }
 const ACTIVE_STATUS = ['diterima', 'dijemput', 'diantar'];
 
-/* ================= Firebase (Dengan Timeout Anti-Macet) ================= */
+/* ================= Firebase & Konfigurasi Fleksibel ================= */
 const TARIF_PATH = '/settings/tarif';
 let settings = Object.assign({}, DEFAULT_SETTINGS);
 let db = null;
 
-function firebaseReady(){
+function getEffectiveFirebaseConfig(){
+  try{
+    const manual = JSON.parse(localStorage.getItem(FB_MANUAL_KEY) || 'null');
+    if(manual && manual.databaseURL) return manual;
+  }catch(e){}
   const c = window.FIREBASE_CONFIG || {};
-  return !!(c.apiKey && String(c.apiKey).indexOf('PASTE_') === -1 &&
-            c.databaseURL && String(c.databaseURL).indexOf('PASTE_') === -1);
+  if(c.databaseURL && String(c.databaseURL).indexOf('PASTE_') === -1) return c;
+  return null;
 }
 function initFirebase(){
-  if(!firebaseReady()) return false;
+  const cfg = getEffectiveFirebaseConfig();
+  if(!cfg) return false;
   try{
-    if(!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+    if($('inp-fb-url')) $('inp-fb-url').value = cfg.databaseURL || '';
+    if($('inp-fb-key')) $('inp-fb-key').value = cfg.apiKey || '';
+    if(!firebase.apps.length){
+      firebase.initializeApp({
+        apiKey: cfg.apiKey || 'AIzaSyDummyKeyForPublicRTDB',
+        databaseURL: cfg.databaseURL
+      });
+    }
     db = firebase.database();
     return true;
   }catch(e){ return false; }
+}
+function simpanKonfigFirebaseManual(){
+  const url = $('inp-fb-url').value.trim();
+  const key = $('inp-fb-key').value.trim();
+  if(!url || !url.startsWith('https://')){
+    toast('Masukkan URL Realtime Database yang valid (https://...)');
+    return;
+  }
+  try{
+    localStorage.setItem(FB_MANUAL_KEY, JSON.stringify({ apiKey: key || 'AIzaSyDummyKey', databaseURL: url }));
+    toast('✅ Konfigurasi disimpan! Memuat ulang aplikasi...');
+    setTimeout(() => location.reload(), 800);
+  }catch(e){}
 }
 function pasangListenerTarif(){
   if(!db) return;
@@ -689,8 +733,6 @@ function pasangListenerTarif(){
     });
   }catch(e){}
 }
-
-// Bangkitkan kode order instan tanpa resiko hang di transaction Firebase
 function buatKodeOrderInstan(){
   const d = new Date();
   const ymd = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
@@ -851,7 +893,6 @@ async function hitungOngkir(){
     $('cust-map').scrollIntoView({ behavior:'smooth', block:'center' });
     return false;
   }
-  // Hitung cepat dengan Haversine dulu agar instan & tidak pernah gagal
   jarakKm = Math.max(0.5, haversine(pickup, dest) * 1.3);
   tampilkanHasil();
 
@@ -942,7 +983,7 @@ function tutupModalSukses(){
   switchTab('saya');
 }
 
-/* ================= Fungsi Buat Order Anti-Gagal ================= */
+/* ================= Fungsi Buat Order (Unified ID & Dual-Sync) ================= */
 async function buatOrder(){
   const nama = $('f-nama').value.trim();
   const wa = $('f-wa').value.trim();
@@ -968,14 +1009,12 @@ async function buatOrder(){
     detail = { shoppingList: itemDesc, itemDesc, stops: stopsVal, estBudget: parseFloat($('f-budget').value) || 0 };
   }
 
-  // Jika pin peta belum dipilih, arahkan ke peta
   if(!pickup || !dest){
     toast('👆 Tap peta untuk memilih ' + svcMeta().la + ' & ' + svcMeta().lb + ' dulu!');
     $('cust-map').scrollIntoView({ behavior:'smooth', block:'center' });
     return;
   }
 
-  // Jika ongkir belum terhitung, hitung otomatis sekarang juga
   if(jarakKm == null || !rincian){
     jarakKm = Math.max(0.5, haversine(pickup, dest) * 1.3);
     tampilkanHasil();
@@ -990,11 +1029,11 @@ async function buatOrder(){
 
   const code = buatKodeOrderInstan();
   const now = new Date().toISOString();
-  let orderRef = null;
-  try{ if(db) orderRef = db.ref('orders').push(); }catch(e){}
-  const orderKey = (orderRef && orderRef.key) ? orderRef.key : ('local_' + Date.now());
+  // Unified Order ID yang sama untuk Cloud maupun Lokal
+  const orderKey = 'ORD_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
 
   const order = Object.assign({
+    id: orderKey,
     code, service,
     customerName: nama, customerPhone: wa,
     pickup: { lat: pickup.lat, lng: pickup.lng, label: pickup.label },
@@ -1014,20 +1053,21 @@ async function buatOrder(){
     timeline: { tl_init: { status:'menunggu', at: now } }
   }, detail);
 
-  // Selalu simpan salinan di HP pelanggan supaya 100% muncul di tab "Order Saya"
+  // 1. Simpan ke LocalStorage & beritahu tab Driver via BroadcastChannel
   saveLocalOrderObj(orderKey, order);
   addMyOrder(orderKey);
+  notifySync();
 
-  // Coba kirim ke Firebase dengan batas waktu 3 detik (supaya tidak pernah hang)
+  // 2. Dorong juga ke Cloud Firebase (dengan timeout 3 detik agar tidak pernah macet)
   let savedToCloud = false;
-  if(db && orderRef){
+  if(db){
     try{
       await Promise.race([
-        orderRef.set(order).then(() => { savedToCloud = true; }),
+        db.ref('orders/' + orderKey).set(order).then(() => { savedToCloud = true; }),
         new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 3000))
       ]);
     }catch(err){
-      console.warn('Fallback ke penyimpanan lokal + WA:', err);
+      console.warn('Firebase write fallback ke lokal:', err);
     }
   }
 
@@ -1037,17 +1077,15 @@ async function buatOrder(){
   pasangListenerSaya();
   resetFormOrder();
 
-  // Tampilkan modal sukses + tombol WA
   const waHref = waLink(ADMIN_WA, formatWaOrderBaru(order));
   $('succ-title').textContent = 'Order ' + code + ' Dibuat!';
   $('succ-desc').textContent = savedToCloud
-    ? 'Order berhasil masuk ke Radar Kurir! Kamu juga bisa konfirmasi cepat via WhatsApp.'
-    : 'Order tersimpan di HP kamu! Ketuk tombol hijau di bawah untuk mengirim rincian ke WhatsApp Kurir.';
+    ? 'Order berhasil masuk ke Server Cloud & Radar Driver secara real-time!'
+    : 'Order sudah masuk ke Radar Driver perangkat ini! Kamu juga bisa meneruskan ke WhatsApp Kurir.';
   $('succ-wa-btn').href = waHref;
   $('order-success-modal').hidden = false;
 }
 
-// Fitur Isi Contoh & Buat Order Tes 1-Klik
 function isiContohOrder(){
   setService('barang');
   if(!$('f-nama').value.trim()) $('f-nama').value = 'Romi Pauji';
@@ -1101,10 +1139,8 @@ function lokasiSaya(){
   );
 }
 
-/* ================= Order Saya + Live Tracking ================= */
-const MY_KEY = 'kurirku_live_myorders';
-const MY_LOCAL_DATA_KEY = 'kurirku_local_order_data';
-let myListeners = {}, trackMaps = {}, cachedOrders = {};
+/* ================= Order Saya + Live Tracking (Cloud & Lokal Sinkron) ================= */
+let myListeners = {}, trackMaps = {}, cachedOrders = {}, lastRenderedStatusSig = '';
 
 function myOrderIds(){
   try{ return JSON.parse(localStorage.getItem(MY_KEY) || '[]'); }catch(e){ return []; }
@@ -1129,7 +1165,7 @@ function getLocalOrderMap(){
 function clearMyOrders(){
   try{ localStorage.removeItem(MY_KEY); localStorage.removeItem(MY_LOCAL_DATA_KEY); }catch(e){}
   Object.keys(myListeners).forEach(id => { try{ if(db) db.ref('orders/' + id).off('value', myListeners[id]); }catch(e){} });
-  myListeners = {}; cachedOrders = {};
+  myListeners = {}; cachedOrders = {}; lastRenderedStatusSig = '';
   Object.keys(trackMaps).forEach(hancurkanTrackMap);
   renderMyOrders([]);
 }
@@ -1185,11 +1221,12 @@ function orderCardHtml(o, id){
   let extra = '';
   if(o.status === 'menunggu'){
     extra = '<div class="btn-row">'
-      + '<a class="btn btn-wa btn-sm" target="_blank" href="' + waLink(ADMIN_WA, formatWaOrderBaru(o)) + '">📲 Kirim ke WA Kurir</a>'
+      + '<a class="btn btn-wa btn-sm" target="_blank" href="' + waLink(ADMIN_WA, formatWaOrderBaru(o)) + '">📲 Kirim WA Kurir</a>'
+      + '<a class="btn btn-secondary btn-sm" href="kurir.html">🛵 Buka Radar Driver</a>'
       + '<button class="btn btn-danger btn-sm" onclick="batalkanOrder(\'' + id + '\')">Batalkan</button>'
       + '</div>';
   }else if(o.courier && o.courier.phone){
-    extra = '<div class="btn-row"><a class="btn btn-wa btn-sm" target="_blank" href="' + waLink(o.courier.phone, waTextCustomer(o)) + '">💬 Chat Kurir (' + esc(o.courier.name || 'Kurir') + ')</a></div>';
+    extra = '<div class="btn-row"><a class="btn btn-wa btn-sm" target="_blank" href="' + waLink(o.courier.phone, waTextCustomer(o)) + '">💬 Chat Driver (' + esc(o.courier.name || 'Kurir') + ')</a></div>';
   }
   let track = '';
   if(ACTIVE_STATUS.includes(o.status)){
@@ -1202,7 +1239,7 @@ function orderCardHtml(o, id){
     + '<span>' + badge(o.status, o.service) + ' ' + serviceBadge(o.service) + '</span></div>'
     + itemHtml(o) + titikHtml(o)
     + '<div class="o-meta">🛣️ ' + esc(fmtKm(o.distanceKm || 0)) + '</div>'
-    + (o.courier && o.courier.name ? '<div class="o-meta">🛵 Kurir: <b>' + esc(o.courier.name) + '</b></div>' : '')
+    + (o.courier && o.courier.name ? '<div class="o-meta">🛵 Driver: <b>' + esc(o.courier.name) + '</b> (' + esc(o.courier.phone || '') + ')</div>' : '')
     + track + timelineHtml(o) + fareRincianHtml(o) + extra + '</div>';
 }
 function renderMyOrders(list){
@@ -1249,32 +1286,27 @@ function updateTrackMap(id, o){
   if(o.courierLoc && o.courierLoc.lat != null){
     if(!t.markerOn){ t.marker.addTo(t.map); t.markerOn = true; }
     t.marker.setLatLng([o.courierLoc.lat, o.courierLoc.lng]);
-    if(hint) hint.textContent = '📡 Lokasi kurir live • update ' + fmtTgl(o.courierLoc.updatedAt);
+    if(hint) hint.textContent = '📡 Posisi kurir live • update ' + fmtTgl(o.courierLoc.updatedAt);
   }else{
-    if(hint) hint.textContent = 'Menunggu lokasi kurir…';
+    if(hint) hint.textContent = 'Menunggu sinyal GPS kurir…';
   }
 }
 function hancurkanTrackMap(id){
   const t = trackMaps[id];
   if(t){ try{ t.map.remove(); }catch(e){} delete trackMaps[id]; }
 }
+
 function pasangListenerSaya(){
-  if(!db){ muatUlangSaya(); return; }
   myOrderIds().forEach(id => {
-    if(myListeners[id] || id.startsWith('local_')) return;
+    if(!db || myListeners[id]) return;
     try{
       const ref = db.ref('orders/' + id);
       const cb = snap => {
         if(!snap.exists()) return;
         const newVal = snap.val();
-        const oldVal = cachedOrders[id];
         cachedOrders[id] = newVal;
         saveLocalOrderObj(id, newVal);
-        if(oldVal && oldVal.status === newVal.status && ACTIVE_STATUS.includes(newVal.status) && trackMaps[id]){
-          updateTrackMap(id, newVal);
-        }else{
-          muatUlangSaya();
-        }
+        muatUlangSaya();
       };
       ref.on('value', cb);
       myListeners[id] = cb;
@@ -1282,45 +1314,57 @@ function pasangListenerSaya(){
   });
   muatUlangSaya();
 }
-async function muatUlangSaya(){
+
+function muatUlangSaya(){
   const ids = myOrderIds();
   const localMap = getLocalOrderMap();
   const list = [];
-  for(const id of ids){
-    if(cachedOrders[id]){
-      list.push({ id, o: cachedOrders[id] });
-    }else if(localMap[id]){
-      list.push({ id, o: localMap[id] });
-    }else if(db && !id.startsWith('local_')){
-      try{
-        const snap = await db.ref('orders/' + id).once('value');
-        if(snap.exists()){
-          cachedOrders[id] = snap.val();
-          list.push({ id, o: snap.val() });
-        }
-      }catch(e){}
+  ids.forEach(id => {
+    // Utamakan data terbaru dari localMap (yang juga diupdate oleh Driver atau Firebase)
+    const o = localMap[id] || cachedOrders[id];
+    if(o){
+      cachedOrders[id] = o;
+      list.push({ id, o });
     }
-  }
+  });
   list.sort((a, b) => new Date(b.o.createdAt) - new Date(a.o.createdAt));
-  renderMyOrders(list);
+
+  // Cek apakah struktur status berubah atau hanya lokasi GPS kurir yang bergeser
+  const sig = list.map(x => x.id + ':' + x.o.status).join('|');
+  if(sig === lastRenderedStatusSig && list.length > 0){
+    list.forEach(x => {
+      if(ACTIVE_STATUS.includes(x.o.status) && trackMaps[x.id]){
+        updateTrackMap(x.id, x.o);
+      }
+    });
+  }else{
+    lastRenderedStatusSig = sig;
+    renderMyOrders(list);
+  }
 }
+
 async function batalkanOrder(id){
   if(!confirm('Batalkan order ini?')) return;
+  const now = new Date().toISOString();
   const localMap = getLocalOrderMap();
   if(localMap[id]){
     localMap[id].status = 'dibatalkan';
+    localMap[id].timeline = localMap[id].timeline || {};
+    localMap[id].timeline['tl_' + Date.now()] = { status:'dibatalkan', at: now };
     saveLocalOrderObj(id, localMap[id]);
   }
   if(cachedOrders[id]) cachedOrders[id].status = 'dibatalkan';
-  if(db && !id.startsWith('local_')){
+  if(db){
     try{
       const ref = db.ref('orders/' + id);
-      const now = new Date().toISOString();
-      const upd = { status:'dibatalkan' };
-      upd['timeline/tl_cancel'] = { status:'dibatalkan', at: now };
-      await ref.update(upd);
+      await ref.update({
+        status:'dibatalkan',
+        ['timeline/tl_' + Date.now()]: { status:'dibatalkan', at: now }
+      });
     }catch(e){}
   }
+  notifySync();
+  lastRenderedStatusSig = '';
   muatUlangSaya();
   toast('Order dibatalkan');
 }
@@ -1332,6 +1376,7 @@ function switchTab(nama){
   });
   if(nama === 'baru'){ initCustMap(); setTimeout(() => { try{ custMap.invalidateSize(); }catch(e){} }, 200); }
   if(nama === 'saya'){
+    lastRenderedStatusSig = '';
     muatUlangSaya();
     setTimeout(() => {
       Object.keys(trackMaps).forEach(k => { try{ trackMaps[k].map.invalidateSize(); }catch(e){} });
@@ -1358,15 +1403,20 @@ function boot(){
   const ok = initFirebase();
   if(!ok){
     $('firebase-banner').classList.add('show');
-    $('set-status').innerHTML = '⚡ <b>Mode Mandiri (WhatsApp Direct Aktif).</b> Pesanan tersimpan di perangkat ini dan diteruskan ke WhatsApp Kurir.';
-    $('gj-desc-status').textContent = 'Mode Mandiri (WhatsApp Direct)';
+    $('set-status').innerHTML = '⚡ <b>Sinkronisasi Lokal &amp; WhatsApp Aktif.</b> Untuk menghubungkan 2 HP berbeda secara live, masukkan URL Firebase Database di bawah.';
+    $('gj-desc-status').textContent = 'Mode Sinkronisasi Lokal & WA';
   }else{
-    $('set-status').innerHTML = '✅ <b>Terhubung ke Firebase Realtime Database.</b> Order tersimpan &amp; live tracking aktif.';
+    $('set-status').innerHTML = '✅ <b>Terhubung ke Cloud Firebase Realtime Database.</b> Order otomatis terkirim ke semua HP kurir.';
     $('gj-desc-status').textContent = 'Terhubung ke Cloud Firebase (Online)';
     pasangListenerTarif();
   }
 
   sinkronUIProfil();
+
+  // Dengarkan perubahan status dari Driver secara real-time
+  window.addEventListener('storage', () => muatUlangSaya());
+  if(bcChannel) bcChannel.onmessage = () => muatUlangSaya();
+  setInterval(() => { if($('tab-saya').classList.contains('active')) muatUlangSaya(); }, 2000);
 
   $('btn-quick-login').addEventListener('click', simpanModalLogin);
   $('btn-skip-login').addEventListener('click', closeModalLogin);
@@ -1405,6 +1455,7 @@ function boot(){
   window.batalkanOrder = batalkanOrder;
   window.buatOrderTesLangsung = buatOrderTesLangsung;
   window.tutupModalSukses = tutupModalSukses;
+  window.simpanKonfigFirebaseManual = simpanKonfigFirebaseManual;
 }
 document.addEventListener('DOMContentLoaded', boot);
 
