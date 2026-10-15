@@ -181,7 +181,7 @@
 </head>
 <body>
 
-<!-- ============ MODAL DAFTAR / MASUK PELANGGAN (100% ANTI-ERROR) ============ -->
+<!-- ============ MODAL DAFTAR / MASUK PELANGGAN ============ -->
 <div class="auth-overlay" id="auth-overlay" hidden>
   <div class="auth-card" role="dialog" aria-modal="true">
     <div class="auth-logo">🛵</div>
@@ -200,8 +200,19 @@
   </div>
 </div>
 
+<!-- ============ MODAL KONFIRMASI ORDER BERHASIL ============ -->
+<div class="auth-overlay" id="order-success-modal" hidden>
+  <div class="auth-card">
+    <div style="font-size:46px">🎉</div>
+    <h2 id="succ-title">Order Berhasil Dibuat!</h2>
+    <p class="auth-sub" id="succ-desc">Pesanan kamu sudah tercatat di sistem.</p>
+    <a class="btn btn-wa btn-block mt12" id="succ-wa-btn" target="_blank" href="#">📲 Kirim Rincian ke WhatsApp Kurir</a>
+    <button class="btn btn-secondary btn-block mt8" type="button" onclick="tutupModalSukses()">Lihat Status di Order Saya</button>
+  </div>
+</div>
+
 <div class="fb-banner" id="firebase-banner">
-  <b>⚡ Mode Mandiri (Langsung WhatsApp Aktif):</b> Kamu tetap bisa menghitung ongkir &amp; membuat pesanan. Order akan diteruskan langsung ke WhatsApp Kurir Tabin.
+  <b>⚡ Mode Mandiri (WhatsApp Direct Aktif):</b> Kamu tetap bisa menghitung ongkir &amp; membuat pesanan. Order akan diteruskan langsung ke WhatsApp Kurir Tabin.
 </div>
 
 <div class="app">
@@ -221,7 +232,10 @@
     <!-- TAB 1: ORDER BARU -->
     <section class="panel active" id="tab-baru">
       <div class="card">
-        <div class="sec-label">1. Pilih layanan</div>
+        <div class="o-head" style="margin-bottom:6px">
+          <div class="sec-label" style="margin:0">1. Pilih layanan</div>
+          <button type="button" id="btn-demo-fill" style="border:1px solid #a7f3d0;background:#ecfdf5;color:var(--emd);border-radius:999px;padding:4px 10px;font-size:11px;font-weight:800;cursor:pointer">⚡ Isi Contoh Order Cepat</button>
+        </div>
         <div class="svc-grid">
           <div class="svc-card active" id="svc-barang"><span class="ic">📦</span><span class="nm">Antar Barang</span><div class="ds">Paket &amp; dokumen</div></div>
           <div class="svc-card" id="svc-penumpang"><span class="ic">🛵</span><span class="nm">Antar Penumpang</span><div class="ds">Ojek motor</div></div>
@@ -300,15 +314,15 @@
           <button class="sc-chip" id="sc-malam" type="button">🌙 Jam malam</button>
           <button class="sc-chip" id="sc-rusak" type="button">🕳 Jalan rusak</button>
         </div>
-        <button class="btn btn-primary btn-block mt12" id="btn-hitung" type="button">🧮 Hitung Ongkir</button>
+        <button class="btn btn-secondary btn-block mt12" id="btn-hitung" type="button">🧮 Hitung Ongkir</button>
         <div class="hasil-box" id="hasil-box">
           <h4>🧾 Rincian ongkir</h4>
           <div id="hasil-rows"></div>
           <div class="r-row total"><span>Total Ongkir</span><span id="hasil-total"></span></div>
           <div class="hint" id="hasil-note" style="display:none"></div>
         </div>
-        <button class="btn btn-primary btn-block mt12" id="btn-order" type="button" disabled>✅ Buat Order Sekarang</button>
-        <div class="hint">Tombol aktif otomatis setelah titik jemput &amp; antar dipilih di peta.</div>
+        <button class="btn btn-primary btn-block mt12" id="btn-order" type="button">✅ Buat Order Sekarang</button>
+        <div class="hint">Pastikan titik jemput &amp; antar sudah dipilih di peta, lalu klik Buat Order Sekarang.</div>
       </div>
     </section>
 
@@ -351,6 +365,14 @@
 
       <div class="gj-sec-title">Bantuan &amp; Layanan</div>
       <div class="gj-list">
+        <button type="button" class="gj-item" onclick="buatOrderTesLangsung()">
+          <div class="gj-ic green">⚡</div>
+          <div class="gj-txt">
+            <div class="gj-title">Buat Order Tes Otomatis (1-Klik)</div>
+            <div class="gj-desc">Uji coba buat pesanan langsung masuk ke sistem</div>
+          </div>
+          <span class="gj-arr">›</span>
+        </button>
         <button type="button" class="gj-item" onclick="document.getElementById('cs-fab').click()">
           <div class="gj-ic purple">🤖</div>
           <div class="gj-txt">
@@ -397,7 +419,7 @@
         </button>
       </div>
 
-      <div class="gj-ver">Kurir Tabin Live v3.0 • Tanjung Bintang, Lampung Selatan</div>
+      <div class="gj-ver">Kurir Tabin Live v3.2 • Tanjung Bintang, Lampung Selatan</div>
     </section>
   </main>
 
@@ -477,7 +499,7 @@ let toastTimer = null;
 function toast(msg){
   const t = $('toast'); if(!t) return;
   t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
 }
 function waLink(phone, text){
   let p = String(phone || '').replace(/[^0-9]/g, '');
@@ -497,7 +519,7 @@ function getInitials(name){
   return parts.length > 1 ? (parts[0][0] + parts[1][0]).toUpperCase() : parts[0].slice(0,2).toUpperCase();
 }
 
-/* ================= Sistem Daftar / Masuk Cepat Anti-Gagal ================= */
+/* ================= Sistem Daftar / Masuk Cepat ================= */
 const PROF_KEY = 'kurirtabin_profile';
 function getProfile(){
   try{ return JSON.parse(localStorage.getItem(PROF_KEY) || 'null'); }catch(e){ return null; }
@@ -581,7 +603,6 @@ function tarifDasar(service, jarakKm, settings){
   const t = tabelOf(service);
   const kb = kmBulat(jarakKm);
   const perKm = (settings && settings.extraPerKm) || t.perKm || 3000;
-  // 0-3 km dihitung 3.000/km, di atas 3 km ditambah perKm
   if(kb <= 3) return { base: kb * 3000, kmBulat: kb };
   return { base: 9000 + (kb - 3) * perKm, kmBulat: kb };
 }
@@ -639,7 +660,7 @@ function trackLabel(status, service){
 }
 const ACTIVE_STATUS = ['diterima', 'dijemput', 'diantar'];
 
-/* ================= Firebase ================= */
+/* ================= Firebase (Dengan Timeout Anti-Macet) ================= */
 const TARIF_PATH = '/settings/tarif';
 let settings = Object.assign({}, DEFAULT_SETTINGS);
 let db = null;
@@ -668,21 +689,13 @@ function pasangListenerTarif(){
     });
   }catch(e){}
 }
-function fbBangkitkanKode(){
+
+// Bangkitkan kode order instan tanpa resiko hang di transaction Firebase
+function buatKodeOrderInstan(){
   const d = new Date();
   const ymd = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
-  if(!db) return Promise.resolve('KR-' + ymd + '-' + Math.floor(100 + Math.random()*900));
-  return new Promise(resolve => {
-    try{
-      db.ref('counters/order_' + ymd).transaction(
-        cur => (cur || 0) + 1,
-        (err, committed, snap) => {
-          const n = (!err && committed && snap) ? snap.val() : Math.floor(100 + Math.random()*900);
-          resolve('KR-' + ymd + '-' + String(n).padStart(3, '0'));
-        }
-      );
-    }catch(e){ resolve('KR-' + ymd + '-' + Math.floor(100 + Math.random()*900)); }
-  });
+  const rnd = Math.floor(100 + Math.random() * 900);
+  return 'KR-' + ymd + '-' + rnd;
 }
 
 /* ================= Peta Customer ================= */
@@ -746,9 +759,10 @@ function reverseGeocode(lat, lng, cb){
     .then(d => { if(my === geoSeq) cb(d && d.display_name ? pendek(d.display_name) : null); })
     .catch(() => { if(my === geoSeq) cb(null); });
 }
-function taruhPin(which, lat, lng){
+function taruhPin(which, lat, lng, labelOverride){
+  initCustMap();
   const m = svcMeta();
-  const obj = { lat, lng, label: latLngLabel(lat, lng) };
+  const obj = { lat, lng, label: labelOverride || latLngLabel(lat, lng) };
   const em = which === 'jemput' ? m.a : m.b;
   const nama = which === 'jemput' ? m.la : m.lb;
   let marker = which === 'jemput' ? markerJemput : markerAntar;
@@ -768,13 +782,15 @@ function taruhPin(which, lat, lng){
   else{ markerAntar = marker; dest = obj; }
   updatePinInfoUI();
 
-  reverseGeocode(lat, lng, label => {
-    if(label){
-      obj.label = label;
-      marker.setPopupContent(em + ' <b>' + esc(nama) + '</b><br>' + esc(label));
-      updatePinInfoUI();
-    }
-  });
+  if(!labelOverride){
+    reverseGeocode(lat, lng, label => {
+      if(label){
+        obj.label = label;
+        marker.setPopupContent(em + ' <b>' + esc(nama) + '</b><br>' + esc(label));
+        updatePinInfoUI();
+      }
+    });
+  }
 
   if(pickup && dest) hitungOngkir();
   else resetHasil();
@@ -830,27 +846,38 @@ function bacaInputLayanan(){
   return input;
 }
 async function hitungOngkir(){
-  if(!pickup || !dest){ toast('Tentukan ' + svcMeta().la + ' dan ' + svcMeta().lb + ' di peta dulu 👆'); return; }
+  if(!pickup || !dest){
+    toast('👆 Tap peta untuk memilih ' + svcMeta().la + ' dan ' + svcMeta().lb + ' dulu');
+    $('cust-map').scrollIntoView({ behavior:'smooth', block:'center' });
+    return false;
+  }
+  // Hitung cepat dengan Haversine dulu agar instan & tidak pernah gagal
+  jarakKm = Math.max(0.5, haversine(pickup, dest) * 1.3);
+  tampilkanHasil();
+
   $('btn-hitung').disabled = true;
-  $('btn-hitung').textContent = '⏳ Menghitung rute…';
+  $('btn-hitung').textContent = '⏳ Mengukur rute jalan…';
   const url = 'https://router.project-osrm.org/route/v1/driving/'
     + pickup.lng + ',' + pickup.lat + ';' + dest.lng + ',' + dest.lat
     + '?overview=full&geometries=geojson';
   try{
-    const r = await fetch(url);
+    const controller = new AbortController();
+    const tId = setTimeout(() => controller.abort(), 3500);
+    const r = await fetch(url, { signal: controller.signal });
+    clearTimeout(tId);
     const d = await r.json();
     if(d && d.code === 'Ok' && d.routes && d.routes.length){
       const rt = d.routes[0];
-      jarakKm = Math.max(0.2, rt.distance / 1000);
+      jarakKm = Math.max(0.3, rt.distance / 1000);
       gambarRute(rt.geometry.coordinates.map(c => [c[1], c[0]]), false);
     }else{ throw new Error('no-route'); }
   }catch(e){
-    jarakKm = Math.max(0.2, haversine(pickup, dest) * 1.3);
     gambarRute([[pickup.lat, pickup.lng],[dest.lat, dest.lng]], true);
   }
   tampilkanHasil();
   $('btn-hitung').disabled = false;
   $('btn-hitung').textContent = '🧮 Hitung Ulang Ongkir';
+  return true;
 }
 function tampilkanHasil(){
   if(jarakKm == null || !pickup || !dest) return;
@@ -872,12 +899,10 @@ function tampilkanHasil(){
   }else{ note.style.display = 'none'; note.textContent = ''; }
   $('hasil-box').classList.add('show');
   $('hasil-box').querySelector('h4').textContent = '🧾 Rincian ongkir — ' + L.icon + ' ' + L.nama;
-  $('btn-order').disabled = false;
 }
 function resetHasil(){
   jarakKm = null; rincian = null;
   $('hasil-box').classList.remove('show');
-  $('btn-order').disabled = true;
   $('btn-hitung').textContent = '🧮 Hitung Ongkir';
   if(routeLine && custMap){ custMap.removeLayer(routeLine); routeLine = null; }
 }
@@ -912,6 +937,12 @@ function formatWaOrderBaru(o){
   return lines.join('\n');
 }
 
+function tutupModalSukses(){
+  $('order-success-modal').hidden = true;
+  switchTab('saya');
+}
+
+/* ================= Fungsi Buat Order Anti-Gagal ================= */
 async function buatOrder(){
   const nama = $('f-nama').value.trim();
   const wa = $('f-wa').value.trim();
@@ -919,75 +950,121 @@ async function buatOrder(){
   if(!nama){ toast('Isi nama kamu dulu ya 🙏'); $('f-nama').focus(); return; }
   if(!wa){ toast('Isi nomor WhatsApp dulu ya 🙏'); $('f-wa').focus(); return; }
 
-  try{ localStorage.setItem(PROF_KEY, JSON.stringify({ nama, wa, alamat: catatan })); }catch(e){}
-  sinkronUIProfil();
-
   let detail = {}, itemDesc = '';
   if(service === 'barang'){
     itemDesc = $('f-barang').value.trim();
-    if(!itemDesc){ toast('Isi deskripsi barang dulu'); $('f-barang').focus(); return; }
+    if(!itemDesc){ toast('Isi deskripsi barang dulu ya 📦'); $('f-barang').focus(); return; }
     detail = { itemDesc, weight: parseFloat($('f-berat').value) || 0 };
   }else if(service === 'penumpang'){
     const pn = $('f-pnama').value.trim() || nama;
     itemDesc = pn; detail = { passengerName: pn, itemDesc };
   }else if(service === 'makanan'){
     itemDesc = $('f-pesanan').value.trim();
-    if(!itemDesc){ toast('Isi pesanan makanan dulu'); $('f-pesanan').focus(); return; }
+    if(!itemDesc){ toast('Isi pesanan makanan dulu ya 🍱'); $('f-pesanan').focus(); return; }
     detail = { itemDesc };
   }else{
     itemDesc = $('f-belanja').value.trim();
-    if(!itemDesc){ toast('Isi dulu mau beli apa'); $('f-belanja').focus(); return; }
+    if(!itemDesc){ toast('Isi daftar titip belanjaan dulu ya 🛒'); $('f-belanja').focus(); return; }
     detail = { shoppingList: itemDesc, itemDesc, stops: stopsVal, estBudget: parseFloat($('f-budget').value) || 0 };
   }
-  if(!pickup || !dest || jarakKm == null || !rincian){ toast('Pilih titik di peta & hitung ongkir dulu'); return; }
 
-  $('btn-order').disabled = true;
-  toast('Membuat order…');
-  try{
-    const code = await fbBangkitkanKode();
-    const now = new Date().toISOString();
-    const orderRef = db ? db.ref('orders').push() : null;
-    const orderKey = orderRef ? orderRef.key : ('local_' + Date.now());
-
-    const order = Object.assign({
-      code, service,
-      customerName: nama, customerPhone: wa,
-      pickup: { lat: pickup.lat, lng: pickup.lng, label: pickup.label },
-      dest: { lat: dest.lat, lng: dest.lng, label: dest.label },
-      notes: catatan,
-      distanceKm: Math.round(jarakKm * 100) / 100,
-      kmBulat: rincian.kmBulat,
-      fareBase: rincian.fareBase,
-      surcharges: rincian.surcharges,
-      fareExtras: rincian.fareExtras,
-      fareTotal: rincian.fareTotal,
-      totalTagihan: rincian.totalTagihan,
-      status: 'menunggu',
-      courier: null,
-      courierLoc: null,
-      createdAt: now,
-      timeline: {}
-    }, detail);
-
-    const tlKey = orderRef ? orderRef.child('timeline').push().key : ('tl_' + Date.now());
-    order.timeline[tlKey] = { status:'menunggu', at: now };
-
-    if(db && orderRef){
-      await orderRef.set(order);
-    }else{
-      saveLocalOrderObj(orderKey, order);
-      window.open(waLink(ADMIN_WA, formatWaOrderBaru(order)), '_blank');
-    }
-
-    addMyOrder(orderKey);
-    pasangListenerSaya();
-    resetFormOrder();
-    switchTab('saya');
-    toast('Order ' + code + ' berhasil dibuat! 🛵');
-  }catch(e){
-    toast('Disimpan lokal & diteruskan ke WhatsApp Admin');
-    $('btn-order').disabled = false;
+  // Jika pin peta belum dipilih, arahkan ke peta
+  if(!pickup || !dest){
+    toast('👆 Tap peta untuk memilih ' + svcMeta().la + ' & ' + svcMeta().lb + ' dulu!');
+    $('cust-map').scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
   }
+
+  // Jika ongkir belum terhitung, hitung otomatis sekarang juga
+  if(jarakKm == null || !rincian){
+    jarakKm = Math.max(0.5, haversine(pickup, dest) * 1.3);
+    tampilkanHasil();
+  }
+
+  try{ localStorage.setItem(PROF_KEY, JSON.stringify({ nama, wa, alamat: catatan })); }catch(e){}
+  sinkronUIProfil();
+
+  const btn = $('btn-order');
+  btn.disabled = true;
+  btn.textContent = '⏳ Memproses Order…';
+
+  const code = buatKodeOrderInstan();
+  const now = new Date().toISOString();
+  let orderRef = null;
+  try{ if(db) orderRef = db.ref('orders').push(); }catch(e){}
+  const orderKey = (orderRef && orderRef.key) ? orderRef.key : ('local_' + Date.now());
+
+  const order = Object.assign({
+    code, service,
+    customerName: nama, customerPhone: wa,
+    pickup: { lat: pickup.lat, lng: pickup.lng, label: pickup.label },
+    dest: { lat: dest.lat, lng: dest.lng, label: dest.label },
+    notes: catatan,
+    distanceKm: Math.round(jarakKm * 100) / 100,
+    kmBulat: rincian.kmBulat,
+    fareBase: rincian.fareBase,
+    surcharges: rincian.surcharges,
+    fareExtras: rincian.fareExtras,
+    fareTotal: rincian.fareTotal,
+    totalTagihan: rincian.totalTagihan,
+    status: 'menunggu',
+    courier: null,
+    courierLoc: null,
+    createdAt: now,
+    timeline: { tl_init: { status:'menunggu', at: now } }
+  }, detail);
+
+  // Selalu simpan salinan di HP pelanggan supaya 100% muncul di tab "Order Saya"
+  saveLocalOrderObj(orderKey, order);
+  addMyOrder(orderKey);
+
+  // Coba kirim ke Firebase dengan batas waktu 3 detik (supaya tidak pernah hang)
+  let savedToCloud = false;
+  if(db && orderRef){
+    try{
+      await Promise.race([
+        orderRef.set(order).then(() => { savedToCloud = true; }),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 3000))
+      ]);
+    }catch(err){
+      console.warn('Fallback ke penyimpanan lokal + WA:', err);
+    }
+  }
+
+  btn.disabled = false;
+  btn.textContent = '✅ Buat Order Sekarang';
+
+  pasangListenerSaya();
+  resetFormOrder();
+
+  // Tampilkan modal sukses + tombol WA
+  const waHref = waLink(ADMIN_WA, formatWaOrderBaru(order));
+  $('succ-title').textContent = 'Order ' + code + ' Dibuat!';
+  $('succ-desc').textContent = savedToCloud
+    ? 'Order berhasil masuk ke Radar Kurir! Kamu juga bisa konfirmasi cepat via WhatsApp.'
+    : 'Order tersimpan di HP kamu! Ketuk tombol hijau di bawah untuk mengirim rincian ke WhatsApp Kurir.';
+  $('succ-wa-btn').href = waHref;
+  $('order-success-modal').hidden = false;
+}
+
+// Fitur Isi Contoh & Buat Order Tes 1-Klik
+function isiContohOrder(){
+  setService('barang');
+  if(!$('f-nama').value.trim()) $('f-nama').value = 'Romi Pauji';
+  if(!$('f-wa').value.trim()) $('f-wa').value = '089632166974';
+  $('f-barang').value = '2 Pack Dimsum Mentai (Contoh Order)';
+  $('f-berat').value = '2';
+  $('f-catatan').value = 'Dekat Pasar Tanjung Bintang';
+  taruhPin('jemput', -5.4025, 105.3920, 'Pasar Tanjung Bintang');
+  taruhPin('antar', -5.4140, 105.3850, 'Jati Baru, Tanjung Bintang');
+  toast('⚡ Contoh order terisi! Klik "Buat Order Sekarang" di bawah.');
+  setTimeout(() => { $('btn-order').scrollIntoView({ behavior:'smooth', block:'center' }); }, 300);
+}
+
+function buatOrderTesLangsung(){
+  switchTab('baru');
+  isiContohOrder();
+  setTimeout(() => { buatOrder(); }, 400);
 }
 
 function resetFormOrder(){
@@ -1108,7 +1185,7 @@ function orderCardHtml(o, id){
   let extra = '';
   if(o.status === 'menunggu'){
     extra = '<div class="btn-row">'
-      + '<a class="btn btn-wa btn-sm" target="_blank" href="' + waLink(ADMIN_WA, formatWaOrderBaru(o)) + '">📲 Kirim ke WA Admin</a>'
+      + '<a class="btn btn-wa btn-sm" target="_blank" href="' + waLink(ADMIN_WA, formatWaOrderBaru(o)) + '">📲 Kirim ke WA Kurir</a>'
       + '<button class="btn btn-danger btn-sm" onclick="batalkanOrder(\'' + id + '\')">Batalkan</button>'
       + '</div>';
   }else if(o.courier && o.courier.phone){
@@ -1136,10 +1213,10 @@ function renderMyOrders(list){
     $('badge-saya').style.display = 'none';
     return;
   }
-  const aktif = list.filter(x => ACTIVE_STATUS.includes(x.o.status)).length;
+  const waitingOrActive = list.filter(x => x.o.status === 'menunggu' || ACTIVE_STATUS.includes(x.o.status)).length;
   const bdg = $('badge-saya');
-  bdg.style.display = aktif ? 'flex' : 'none';
-  bdg.textContent = aktif;
+  bdg.style.display = waitingOrActive ? 'flex' : 'none';
+  bdg.textContent = waitingOrActive;
   box.innerHTML = list.map(x => orderCardHtml(x.o, x.id)).join('');
   list.forEach(x => {
     if(ACTIVE_STATUS.includes(x.o.status)){
@@ -1185,20 +1262,23 @@ function pasangListenerSaya(){
   if(!db){ muatUlangSaya(); return; }
   myOrderIds().forEach(id => {
     if(myListeners[id] || id.startsWith('local_')) return;
-    const ref = db.ref('orders/' + id);
-    const cb = snap => {
-      if(!snap.exists()) return;
-      const newVal = snap.val();
-      const oldVal = cachedOrders[id];
-      cachedOrders[id] = newVal;
-      if(oldVal && oldVal.status === newVal.status && ACTIVE_STATUS.includes(newVal.status) && trackMaps[id]){
-        updateTrackMap(id, newVal);
-      }else{
-        muatUlangSaya();
-      }
-    };
-    ref.on('value', cb);
-    myListeners[id] = cb;
+    try{
+      const ref = db.ref('orders/' + id);
+      const cb = snap => {
+        if(!snap.exists()) return;
+        const newVal = snap.val();
+        const oldVal = cachedOrders[id];
+        cachedOrders[id] = newVal;
+        saveLocalOrderObj(id, newVal);
+        if(oldVal && oldVal.status === newVal.status && ACTIVE_STATUS.includes(newVal.status) && trackMaps[id]){
+          updateTrackMap(id, newVal);
+        }else{
+          muatUlangSaya();
+        }
+      };
+      ref.on('value', cb);
+      myListeners[id] = cb;
+    }catch(e){}
   });
   muatUlangSaya();
 }
@@ -1207,7 +1287,11 @@ async function muatUlangSaya(){
   const localMap = getLocalOrderMap();
   const list = [];
   for(const id of ids){
-    if(db && !id.startsWith('local_')){
+    if(cachedOrders[id]){
+      list.push({ id, o: cachedOrders[id] });
+    }else if(localMap[id]){
+      list.push({ id, o: localMap[id] });
+    }else if(db && !id.startsWith('local_')){
       try{
         const snap = await db.ref('orders/' + id).once('value');
         if(snap.exists()){
@@ -1215,8 +1299,6 @@ async function muatUlangSaya(){
           list.push({ id, o: snap.val() });
         }
       }catch(e){}
-    }else if(localMap[id]){
-      list.push({ id, o: localMap[id] });
     }
   }
   list.sort((a, b) => new Date(b.o.createdAt) - new Date(a.o.createdAt));
@@ -1224,27 +1306,23 @@ async function muatUlangSaya(){
 }
 async function batalkanOrder(id){
   if(!confirm('Batalkan order ini?')) return;
-  if(id.startsWith('local_') || !db){
-    const localMap = getLocalOrderMap();
-    if(localMap[id]){
-      localMap[id].status = 'dibatalkan';
-      saveLocalOrderObj(id, localMap[id]);
-      muatUlangSaya();
-      toast('Order dibatalkan');
-    }
-    return;
+  const localMap = getLocalOrderMap();
+  if(localMap[id]){
+    localMap[id].status = 'dibatalkan';
+    saveLocalOrderObj(id, localMap[id]);
   }
-  try{
-    const ref = db.ref('orders/' + id);
-    const snap = await ref.once('value');
-    const o = snap.val();
-    if(!o || o.status !== 'menunggu'){ toast('Order sudah diproses kurir, tidak bisa dibatalkan'); return; }
-    const now = new Date().toISOString();
-    const upd = { status:'dibatalkan' };
-    upd['timeline/' + ref.child('timeline').push().key] = { status:'dibatalkan', at: now };
-    await ref.update(upd);
-    toast('Order dibatalkan');
-  }catch(e){ toast('Gagal membatalkan — cek koneksi'); }
+  if(cachedOrders[id]) cachedOrders[id].status = 'dibatalkan';
+  if(db && !id.startsWith('local_')){
+    try{
+      const ref = db.ref('orders/' + id);
+      const now = new Date().toISOString();
+      const upd = { status:'dibatalkan' };
+      upd['timeline/tl_cancel'] = { status:'dibatalkan', at: now };
+      await ref.update(upd);
+    }catch(e){}
+  }
+  muatUlangSaya();
+  toast('Order dibatalkan');
 }
 
 function switchTab(nama){
@@ -1289,13 +1367,10 @@ function boot(){
   }
 
   sinkronUIProfil();
-  if(!getProfile() && !sessionStorage.getItem('kt_prompted')){
-    sessionStorage.setItem('kt_prompted', '1');
-    openModalLogin();
-  }
 
   $('btn-quick-login').addEventListener('click', simpanModalLogin);
   $('btn-skip-login').addEventListener('click', closeModalLogin);
+  $('btn-demo-fill').addEventListener('click', isiContohOrder);
 
   ['barang','penumpang','makanan','titip'].forEach(k => {
     $('svc-' + k).addEventListener('click', () => setService(k));
@@ -1328,6 +1403,8 @@ function boot(){
   initCustMap();
   pasangListenerSaya();
   window.batalkanOrder = batalkanOrder;
+  window.buatOrderTesLangsung = buatOrderTesLangsung;
+  window.tutupModalSukses = tutupModalSukses;
 }
 document.addEventListener('DOMContentLoaded', boot);
 
