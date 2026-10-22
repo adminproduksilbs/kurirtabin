@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>KURIR TABIN MITRA — GoPartner Driver</title>
+<title>KURIR TABIN MITRA — GoPartner Driver (kurirtabin.web.id)</title>
+<link rel="canonical" href="https://kurirtabin.web.id/kurir.html">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -166,22 +167,6 @@
 
   .bs-overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(2px);z-index:300;display:none;align-items:flex-end;justify-content:center}
   .bs-overlay.open{display:flex;animation:fade .18s ease}
-  /* ===== CHAT ORDER (driver <-> customer) ===== */
-  .oc-panel{position:fixed;left:50%;transform:translateX(-50%) translateY(12px);bottom:calc(84px + env(safe-area-inset-bottom));width:calc(100% - 32px);max-width:448px;height:min(65vh,520px);background:#fff;border-radius:20px;box-shadow:0 16px 48px rgba(2,44,34,.25);z-index:350;display:none;flex-direction:column;overflow:hidden;opacity:0;transition:opacity .18s,transform .18s}
-  .oc-panel.open{display:flex;opacity:1;transform:translateX(-50%) translateY(0)}
-  .oc-head{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#059669,#0d9488);color:#fff;padding:12px 14px}
-  .oc-head .t{font-weight:800;font-size:14px}
-  .oc-head .s{font-size:11px;opacity:.85}
-  .oc-close{margin-left:auto;border:0;background:rgba(255,255,255,.18);color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer}
-  .oc-body{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;background:#f8fafc}
-  .oc-msg{max-width:85%;padding:9px 12px;border-radius:14px;font-size:13.5px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
-  .oc-me{background:#059669;color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
-  .oc-them{background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-bottom-left-radius:4px;align-self:flex-start}
-  .oc-meta{font-size:10.5px;opacity:.7;margin-top:3px}
-  .oc-empty{color:#64748b;font-size:13px;text-align:center;padding:20px 10px}
-  .oc-foot{display:flex;gap:8px;padding:10px;border-top:1px solid #e2e8f0;background:#fff}
-  .oc-input{flex:1;border:1.5px solid #e2e8f0;border-radius:12px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none}
-  .oc-send{border:0;background:#059669;color:#fff;width:44px;height:44px;border-radius:12px;font-size:18px;cursor:pointer;flex-shrink:0}
   .bs-sheet{background:#fff;width:100%;max-width:480px;border-radius:24px 24px 0 0;padding:14px 18px calc(22px + env(safe-area-inset-bottom));max-height:86vh;overflow-y:auto;box-shadow:0 -10px 40px rgba(0,0,0,.25);animation:slideUp .22s ease}
   @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
   .bs-handle{width:42px;height:5px;background:#cbd5e1;border-radius:999px;margin:0 auto 12px}
@@ -200,7 +185,7 @@
 </head>
 <body>
 <div class="fb-banner" id="firebase-banner">
-  <b>⚠️ Firebase belum dikonfigurasi:</b> Pastikan file <code>firebase-config.js</code> sudah terisi agar bid order real-time berjalan.
+  <b>⚡ Radar Sinkronisasi Lokal Aktif:</b> Order dari perangkat ini langsung terbaca otomatis. Untuk menerima order lintas HP berbeda, ketuk tab <b>Akun &rarr; Pengaturan Database Firebase</b>.
 </div>
 
 <!-- ============ AUTH GOPARTNER ============ -->
@@ -208,7 +193,7 @@
   <div class="auth-card" id="reg-box" style="display:none">
     <div class="gp-badge">🛵 MITRA KURIR TABIN</div>
     <h2>Daftar Akun Driver</h2>
-    <p>Registrasi sekali di HP ini untuk mulai menerima order.</p>
+    <p>kurirtabin.web.id • Registrasi sekali di HP ini.</p>
     <label class="f-label" for="reg-nama">Nama Mitra Driver</label>
     <input class="f-input" id="reg-nama" placeholder="cth: Romi Pauji">
     <label class="f-label" for="reg-wa">Nomor WhatsApp Aktif</label>
@@ -277,6 +262,7 @@
       <div class="gp-map-tools">
         <button type="button" class="gp-tool-btn" id="btn-center-gps" title="Pusatkan Posisi Saya">🎯</button>
         <button type="button" class="gp-tool-btn" id="btn-test-sound" title="Tes Nada Bid">🔊</button>
+        <button type="button" class="gp-tool-btn" onclick="simulasiOrderMasuk()" title="Simulasi Order Masuk">⚡</button>
       </div>
 
       <div id="radar-map"></div>
@@ -332,7 +318,10 @@
   <section class="panel" id="ktab-masuk">
     <div class="sub-hdr">
       <h2>📥 Bid Order Masuk</h2>
-      <span class="badge st-menunggu" id="hdr-wait-badge">0 Menunggu</span>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button type="button" class="btn btn-secondary btn-sm" style="padding:5px 10px;font-size:11.5px" onclick="simulasiOrderMasuk()">⚡ +Order Tes</button>
+        <span class="badge st-menunggu" id="hdr-wait-badge">0 Menunggu</span>
+      </div>
     </div>
     <div class="sub-body">
       <div id="masuk-list"></div>
@@ -394,8 +383,16 @@
         </button>
       </div>
 
-      <div class="gj-sec-title">Tarif &amp; Suara Order</div>
+      <div class="gj-sec-title">Tarif &amp; Simulasi Order</div>
       <div class="gj-list">
+        <button type="button" class="gj-item" onclick="simulasiOrderMasuk()">
+          <div class="gj-ic green">⚡</div>
+          <div class="gj-txt">
+            <div class="gj-title">Simulasi Order Baru Masuk (Tes Bid)</div>
+            <div class="gj-desc">Coba terima order, navigasi &amp; selesaikan pengantaran</div>
+          </div>
+          <span class="gj-arr">›</span>
+        </button>
         <button type="button" class="gj-item" onclick="openSheet('sheet-atur-tarif')">
           <div class="gj-ic amber">⚙️</div>
           <div class="gj-txt">
@@ -422,20 +419,20 @@
         </button>
       </div>
 
-      <div class="gj-sec-title">Sistem &amp; Sesi</div>
+      <div class="gj-sec-title">Sistem &amp; Cloud Database</div>
       <div class="gj-list">
-        <a class="gj-item" href="index.html">
+        <a class="gj-item" href="./">
           <div class="gj-ic green">🧾</div>
           <div class="gj-txt">
-            <div class="gj-title">Lihat Halaman Pelanggan</div>
-            <div class="gj-desc">Buka tampilan pemesanan customer</div>
+            <div class="gj-title">Buka Halaman Pelanggan (Customer)</div>
+            <div class="gj-desc">kurirtabin.web.id</div>
           </div>
           <span class="gj-arr">›</span>
         </a>
         <button type="button" class="gj-item" onclick="openSheet('sheet-status')">
           <div class="gj-ic blue">🔌</div>
           <div class="gj-txt">
-            <div class="gj-title">Status Koneksi Server</div>
+            <div class="gj-title">Pengaturan Database Firebase (Cloud)</div>
             <div class="gj-desc" id="gj-desc-fb">Memeriksa koneksi database...</div>
           </div>
           <span class="gj-arr">›</span>
@@ -448,14 +445,6 @@
           </div>
           <span class="gj-arr">›</span>
         </button>
-        <a class="gj-item" href="index.html">
-          <div class="gj-ic" style="background:#dcfce7">🧾</div>
-          <div class="gj-txt">
-            <div class="gj-title">Kamu Customer? Buka Aplikasi Customer</div>
-            <div class="gj-desc">Aplikasi terpisah untuk pesan antar</div>
-          </div>
-          <span class="gj-arr">›</span>
-        </a>
       </div>
     </div>
   </section>
@@ -527,10 +516,17 @@
     <div class="bs-sheet">
       <div class="bs-handle"></div>
       <div class="bs-head">
-        <h3>🔌 Status Koneksi Server</h3>
+        <h3>🔌 Koneksi Cloud Firebase</h3>
         <button class="bs-close" type="button" onclick="closeSheet('sheet-status')">✕</button>
       </div>
       <div class="o-meta" id="fb-status">Memeriksa…</div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)">
+        <label class="f-label" for="inp-fb-url">URL Realtime Database Firebase:</label>
+        <input class="f-input" id="inp-fb-url" placeholder="https://nama-project-default-rtdb.asia-southeast1.firebasedatabase.app">
+        <label class="f-label" for="inp-fb-key">API Key Firebase:</label>
+        <input class="f-input" id="inp-fb-key" placeholder="AIzaSy...">
+        <button class="btn btn-primary btn-block mt12" type="button" onclick="simpanKonfigFirebaseManual()">💾 Hubungkan Firebase Sekarang</button>
+      </div>
     </div>
   </div>
 
@@ -544,25 +540,21 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- Panel Chat Order (driver <-> customer) -->
-<div class="oc-panel" id="oc-panel" aria-hidden="true">
-  <div class="oc-head">
-    <div><div class="t" id="oc-title">💬 Chat Customer</div><div class="s" id="oc-sub">Order -</div></div>
-    <button class="oc-close" id="oc-close" aria-label="Tutup">✕</button>
-  </div>
-  <div class="oc-body" id="oc-body"></div>
-  <div class="oc-foot">
-    <input class="oc-input" id="oc-input" placeholder="Tulis pesan ke customer..." autocomplete="off" maxlength="500">
-    <button class="oc-send" id="oc-send" aria-label="Kirim">➤</button>
-  </div>
-</div>
-
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="firebase-config.js" onerror="window.FIREBASE_CONFIG_MISSING=true"></script>
 
 <script>
-/* ================= Helpers & Nada Bid GoPartner ================= */
+const MY_LOCAL_DATA_KEY = 'kurirku_local_order_data';
+const MY_KEY = 'kurirku_live_myorders';
+const FB_MANUAL_KEY = 'kurirtabin_fb_manual';
+let bcChannel = null;
+try{ if('BroadcastChannel' in window) bcChannel = new BroadcastChannel('kurirtabin_sync'); }catch(e){}
+
+function notifySync(){
+  try{ if(bcChannel) bcChannel.postMessage({ type: 'order_updated', ts: Date.now() }); }catch(e){}
+}
+
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function rp(n){ return 'Rp' + Math.round(Number(n) || 0).toLocaleString('id-ID'); }
@@ -644,13 +636,6 @@ async function aturWakeLock(on){
   }catch(e){}
 }
 
-/* ================= Tarif: 0-3 km = Rp3.000/km ================= */
-const TARIF = {
-  barang:    { tiers: [[1,3000],[2,6000],[3,9000]], extraKm: 3, perKm: 3000 },
-  penumpang: { tiers: [[1,3000],[2,6000],[3,9000]], extraKm: 3, perKm: 3000 },
-  makanan:   { tiers: [[1,3000],[2,6000],[3,9000]], extraKm: 3, perKm: 3000 },
-  titip:     null
-};
 const DEFAULT_SETTINGS = {
   hujanFee: 4000, sibukPct: 25, malamFee: 7500, rusakFee: 4000,
   overloadPerKg: 3000, shopFeePerStop: 4000, extraPerKm: 3000
@@ -689,20 +674,54 @@ function serviceBadge(service){
   return '<span class="badge svc-badge">' + L.icon + ' ' + esc(L.nama) + '</span>';
 }
 
-/* ================= Firebase ================= */
 const TARIF_PATH = '/settings/tarif';
 let settings = Object.assign({}, DEFAULT_SETTINGS);
 let db = null, tarifListenerBound = false;
 
-function cfgValid(c){ return !!(c && c.databaseURL && /^https:\/\/[a-z0-9-]+-default-rtdb(\.[a-z0-9-]+)?\.firebasedatabase\.app\/?$/.test(String(c.databaseURL)) && c.apiKey && String(c.apiKey).indexOf('PASTE_') === -1 && String(c.apiKey).indexOf('nama-project') === -1 && String(c.databaseURL).indexOf('nama-project') === -1); }
-function firebaseReady(){ return cfgValid(window.FIREBASE_CONFIG || {}); }
-function initFirebase(){
-  if(!firebaseReady()) return false;
+function getLocalOrderMap(){
+  try{ return JSON.parse(localStorage.getItem(MY_LOCAL_DATA_KEY) || '{}'); }catch(e){ return {}; }
+}
+function saveLocalOrderMap(map){
+  try{ localStorage.setItem(MY_LOCAL_DATA_KEY, JSON.stringify(map)); }catch(e){}
+}
+
+function getEffectiveFirebaseConfig(){
   try{
-    if(!firebase.apps.length) firebase.initializeApp(window.FIREBASE_CONFIG);
+    const manual = JSON.parse(localStorage.getItem(FB_MANUAL_KEY) || 'null');
+    if(manual && manual.databaseURL) return manual;
+  }catch(e){}
+  const c = window.FIREBASE_CONFIG || {};
+  if(c.databaseURL && String(c.databaseURL).indexOf('PASTE_') === -1) return c;
+  return null;
+}
+function initFirebase(){
+  const cfg = getEffectiveFirebaseConfig();
+  if(!cfg) return false;
+  try{
+    if($('inp-fb-url')) $('inp-fb-url').value = cfg.databaseURL || '';
+    if($('inp-fb-key')) $('inp-fb-key').value = cfg.apiKey || '';
+    if(!firebase.apps.length){
+      firebase.initializeApp({
+        apiKey: cfg.apiKey || 'AIzaSyDummyKeyForPublicRTDB',
+        databaseURL: cfg.databaseURL
+      });
+    }
     db = firebase.database();
     return true;
   }catch(e){ return false; }
+}
+function simpanKonfigFirebaseManual(){
+  const url = $('inp-fb-url').value.trim();
+  const key = $('inp-fb-key').value.trim();
+  if(!url || !url.startsWith('https://')){
+    toast('Masukkan URL Realtime Database yang valid (https://...)');
+    return;
+  }
+  try{
+    localStorage.setItem(FB_MANUAL_KEY, JSON.stringify({ apiKey: key || 'AIzaSyDummyKey', databaseURL: url }));
+    toast('✅ Konfigurasi disimpan! Memuat ulang aplikasi...');
+    setTimeout(() => location.reload(), 800);
+  }catch(e){}
 }
 function pasangListenerTarif(){
   if(!db || tarifListenerBound) return;
@@ -805,7 +824,7 @@ function keluarKurir(){
 /* ================= Peta Radar Utama & Live GPS ================= */
 const TABIN_CENTER = [-5.4072, 105.3895];
 let radarMap = null, myLocMarker = null, activeRouteLine = null, activeRouteKey = null;
-let radarOrderMarkers = [];
+let radarOrderMarkers = [], lastRadarSig = '';
 let watchId = null, lastSent = null, broadcastOn = true, myLastCoords = null;
 
 function pinIcon(emoji, size){
@@ -855,9 +874,15 @@ function bersihkanMarkerRadar(){
 }
 async function updatePetaRadar(){
   initRadarMap();
-  bersihkanMarkerRadar();
   const o = activeOrderId ? allOrders[activeOrderId] : null;
   const isAct = o && ['diterima','dijemput','diantar'].includes(o.status);
+
+  const waitingKeys = Object.keys(allOrders).filter(id => allOrders[id] && allOrders[id].status === 'menunggu');
+  const sig = isAct ? ('ACT:' + activeOrderId + ':' + o.status) : ('WAIT:' + waitingKeys.join(','));
+  if(sig === lastRadarSig) return;
+  lastRadarSig = sig;
+
+  bersihkanMarkerRadar();
 
   if(isAct){
     const em = SVC_MAP[o.service] || SVC_MAP.barang;
@@ -887,9 +912,9 @@ async function updatePetaRadar(){
   }else{
     activeRouteKey = null;
     if(activeRouteLine){ try{ radarMap.removeLayer(activeRouteLine); }catch(e){} activeRouteLine = null; }
-    Object.keys(allOrders).forEach(id => {
+    waitingKeys.forEach(id => {
       const w = allOrders[id];
-      if(w && w.status === 'menunggu' && w.pickup && w.pickup.lat != null){
+      if(w && w.pickup && w.pickup.lat != null){
         const Lsvc = LAYANAN[w.service] || LAYANAN.barang;
         const m = L.marker([w.pickup.lat, w.pickup.lng], { icon: pinIcon(Lsvc.icon, 28) }).addTo(radarMap);
         m.bindPopup('<b>' + esc(w.code) + ' • ' + rp(w.fareTotal) + '</b><br>' + esc(w.pickup.label) + '<br><button onclick="ambilOrder(\'' + id + '\', false)" style="margin-top:6px;background:#00AA13;color:#fff;border:0;padding:5px 10px;border-radius:8px;font-weight:700;cursor:pointer">✋ Ambil Bid</button>');
@@ -916,12 +941,22 @@ function startWatch(){
       if(!shouldSendLoc(lastSent, cur, now)) return;
       lastSent = { t: now, lat: cur.lat, lng: cur.lng };
       const iso = new Date().toISOString();
-      const upd = {};
-      upd['orders/' + activeOrderId + '/courierLoc'] = { lat: cur.lat, lng: cur.lng, updatedAt: iso };
-      upd['couriers/' + getCid() + '/lat'] = cur.lat;
-      upd['couriers/' + getCid() + '/lng'] = cur.lng;
-      upd['couriers/' + getCid() + '/updatedAt'] = iso;
-      try{ if(db) db.ref().update(upd); }catch(e){}
+
+      const localMap = getLocalOrderMap();
+      if(localMap[activeOrderId]){
+        localMap[activeOrderId].courierLoc = { lat: cur.lat, lng: cur.lng, updatedAt: iso };
+        saveLocalOrderMap(localMap);
+        notifySync();
+      }
+
+      if(db){
+        const upd = {};
+        upd['orders/' + activeOrderId + '/courierLoc'] = { lat: cur.lat, lng: cur.lng, updatedAt: iso };
+        upd['couriers/' + getCid() + '/lat'] = cur.lat;
+        upd['couriers/' + getCid() + '/lng'] = cur.lng;
+        upd['couriers/' + getCid() + '/updatedAt'] = iso;
+        try{ db.ref().update(upd); }catch(e){}
+      }
     },
     () => {},
     { enableHighAccuracy: true, maximumAge: 5000, timeout: 20000 }
@@ -934,8 +969,8 @@ function stopWatch(){
   }
 }
 
-/* ================= Data Layer & Modal Bid Otomatis ================= */
-let allOrders = {}, knownWaitingIds = null, ordersListenerBound = false;
+/* ================= Dual-Sync Engine ================= */
+let cloudOrders = {}, allOrders = {}, knownWaitingIds = null, ordersListenerBound = false;
 let subtab = 'radar', riwPeriod = 'hari', activeOrderId = null, currentBidPopupId = null;
 
 function milikSaya(o){
@@ -1003,15 +1038,17 @@ function sinkronkanOrderAktifSaya(){
   }
 }
 
-function pasangListenerOrders(){
-  if(!db || ordersListenerBound) return;
-  ordersListenerBound = true;
-  db.ref('orders').on('value', snap => {
-    allOrders = snap.val() || {};
-    sinkronkanOrderAktifSaya();
+function gabungkanDanRenderOrders(triggerPopupOnFirstLoad){
+  const localMap = getLocalOrderMap();
+  const merged = Object.assign({}, localMap, cloudOrders);
+  saveLocalOrderMap(merged);
+  allOrders = merged;
 
-    const currentWaitingIds = Object.keys(allOrders).filter(id => allOrders[id].status === 'menunggu');
-    if(knownWaitingIds !== null && isOnline()){
+  sinkronkanOrderAktifSaya();
+
+  const currentWaitingIds = Object.keys(allOrders).filter(id => allOrders[id] && allOrders[id].status === 'menunggu');
+  if(isOnline()){
+    if(knownWaitingIds !== null){
       const newIds = currentWaitingIds.filter(id => !knownWaitingIds.includes(id));
       if(newIds.length > 0){
         bunyiAlarmOrder();
@@ -1022,21 +1059,95 @@ function pasangListenerOrders(){
           toast('🔔 Ada bid order baru masuk di antrean!');
         }
       }
+    }else if(triggerPopupOnFirstLoad && currentWaitingIds.length > 0 && !activeOrderId){
+      const sortedWaiting = urutTerbaru(currentWaitingIds.map(id => ({ id, o: allOrders[id] })));
+      bunyiAlarmOrder();
+      tampilkanModalBid(sortedWaiting[0].id, sortedWaiting[0].o);
     }
-    if(currentBidPopupId && (!allOrders[currentBidPopupId] || allOrders[currentBidPopupId].status !== 'menunggu')){
-      tutupModalBid();
-    }
-    knownWaitingIds = currentWaitingIds;
+  }
 
-    renderBerandaDock();
-    updatePetaRadar();
-    if(subtab === 'masuk') renderMasuk();
-    if(subtab === 'riwayat') renderRiwayat();
-  });
+  if(currentBidPopupId && (!allOrders[currentBidPopupId] || allOrders[currentBidPopupId].status !== 'menunggu')){
+    tutupModalBid();
+  }
+  knownWaitingIds = currentWaitingIds;
+
+  renderBerandaDock();
+  updatePetaRadar();
+  if(subtab === 'masuk') renderMasuk();
+  if(subtab === 'riwayat') renderRiwayat();
+}
+
+function pasangListenerOrders(){
+  if(ordersListenerBound) return;
+  ordersListenerBound = true;
+
+  gabungkanDanRenderOrders(true);
+
+  window.addEventListener('storage', () => gabungkanDanRenderOrders(false));
+  if(bcChannel) bcChannel.onmessage = () => gabungkanDanRenderOrders(false);
+  setInterval(() => gabungkanDanRenderOrders(false), 2000);
+
+  if(db){
+    try{
+      db.ref('orders').on('value', snap => {
+        cloudOrders = snap.val() || {};
+        gabungkanDanRenderOrders(false);
+      }, err => {
+        $('firebase-banner').classList.add('show');
+      });
+    }catch(e){}
+  }
+}
+
+function simulasiOrderMasuk(){
+  const d = new Date();
+  const ymd = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+  const code = 'KR-' + ymd + '-' + Math.floor(100 + Math.random() * 900);
+  const now = d.toISOString();
+  const id = 'ORD_' + Date.now() + '_sim';
+
+  const dummyOrder = {
+    id, code,
+    service: 'makanan',
+    customerName: 'Siti Rahma (Order Tes)',
+    customerPhone: '089632166974',
+    itemDesc: '2 Paket Dimsum Mentai + 2 Es Teh Jumbo',
+    notes: 'Rumah warna hijau dekat Puskesmas Tanjung Bintang',
+    pickup: { lat: -5.4025, lng: 105.3920, label: 'Kedai Dimsumku, Tanjung Bintang' },
+    dest: { lat: -5.4150, lng: 105.3840, label: 'Desa Jati Baru, Tanjung Bintang' },
+    distanceKm: 2.4,
+    kmBulat: 3,
+    fareBase: 9000,
+    surcharges: [],
+    fareExtras: 0,
+    fareTotal: 9000,
+    totalTagihan: 9000,
+    status: 'menunggu',
+    courier: null,
+    courierLoc: null,
+    createdAt: now,
+    timeline: { tl_1: { status: 'menunggu', at: now } }
+  };
+
+  const localMap = getLocalOrderMap();
+  localMap[id] = dummyOrder;
+  saveLocalOrderMap(localMap);
+
+  try{
+    const myIds = JSON.parse(localStorage.getItem(MY_KEY) || '[]');
+    if(!myIds.includes(id)) myIds.unshift(id);
+    localStorage.setItem(MY_KEY, JSON.stringify(myIds));
+  }catch(e){}
+
+  if(db){
+    try{ db.ref('orders/' + id).set(dummyOrder); }catch(e){}
+  }
+
+  notifySync();
+  gabungkanDanRenderOrders(false);
 }
 
 async function ambilOrder(id, skipConfirm){
-  if(!db){ toast('Belum terhubung ke Firebase'); return; }
   if(!isOnline()){ toast('Kamu sedang OFF-BID — aktifkan tombol ON-BID dulu'); return; }
   const a = getAuth();
   if(activeOrderId){
@@ -1045,30 +1156,47 @@ async function ambilOrder(id, skipConfirm){
     return;
   }
   if(!skipConfirm && !confirm('Terima order ini sekarang?')) return;
-  try{
-    const ref = db.ref('orders/' + id);
-    let ok = false;
-    await ref.transaction(cur => {
-      if(!cur || cur.status !== 'menunggu') return;
-      cur.status = 'diterima';
-      cur.courier = { name: a.name, phone: a.phone };
-      const tk = ref.child('timeline').push().key;
-      cur.timeline = cur.timeline || {};
-      cur.timeline[tk] = { status:'diterima', at: new Date().toISOString() };
-      ok = true;
-      return cur;
-    });
-    if(!ok){ toast('Maaf, order sudah diambil mitra lain'); return; }
-    activeOrderId = id;
-    await db.ref('couriers/' + getCid()).update({
-      name: a.name, phone: a.phone, online: isOnline(),
-      activeOrderId: id, updatedAt: new Date().toISOString()
-    });
-    broadcastOn = true; $('bc-toggle').checked = true;
-    startWatch();
-    toast('✅ Order diterima! Segera menuju titik jemput.');
-    switchSubtab('radar');
-  }catch(e){ toast('Gagal mengambil order — cek koneksi'); }
+
+  const now = new Date().toISOString();
+  const o = allOrders[id];
+  if(!o || o.status !== 'menunggu'){
+    toast('Maaf, order sudah tidak tersedia');
+    return;
+  }
+
+  const tlKey = 'tl_' + Date.now();
+  const updatedOrder = Object.assign({}, o, {
+    status: 'diterima',
+    courier: { name: a.name, phone: a.phone },
+    timeline: Object.assign({}, o.timeline || {}, { [tlKey]: { status:'diterima', at: now } })
+  });
+
+  const localMap = getLocalOrderMap();
+  localMap[id] = updatedOrder;
+  saveLocalOrderMap(localMap);
+  if(cloudOrders[id]) cloudOrders[id] = updatedOrder;
+  notifySync();
+
+  if(db){
+    try{
+      await db.ref('orders/' + id).update({
+        status: 'diterima',
+        courier: { name: a.name, phone: a.phone },
+        ['timeline/' + tlKey]: { status:'diterima', at: now }
+      });
+      await db.ref('couriers/' + getCid()).update({
+        name: a.name, phone: a.phone, online: isOnline(),
+        activeOrderId: id, updatedAt: now
+      });
+    }catch(e){}
+  }
+
+  activeOrderId = id;
+  broadcastOn = true; $('bc-toggle').checked = true;
+  startWatch();
+  gabungkanDanRenderOrders(false);
+  toast('✅ Order diterima! Segera menuju titik jemput.');
+  switchSubtab('radar');
 }
 
 async function ubahStatus(id, statusBaru){
@@ -1079,25 +1207,43 @@ async function ubahStatus(id, statusBaru){
     dibatalkan:'Batalkan order ini?'
   };
   if(!confirm(labels[statusBaru] || 'Lanjut?')) return;
-  try{
-    const ref = db.ref('orders/' + id);
-    const now = new Date().toISOString();
-    const upd = { status: statusBaru };
-    upd['timeline/' + ref.child('timeline').push().key] = { status: statusBaru, at: now };
-    await ref.update(upd);
-    if(statusBaru === 'selesai' || statusBaru === 'dibatalkan'){
-      activeOrderId = null;
-      await db.ref('couriers/' + getCid()).update({ activeOrderId: null, updatedAt: now });
-      toast(statusBaru === 'selesai' ? '🎉 Order Selesai! Saldo pendapatan bertambah.' : 'Order dibatalkan');
-      renderBerandaDock();
-      updatePetaRadar();
-    }else{
-      toast('Status diperbarui: ' + statusLabel(statusBaru, null));
-    }
-  }catch(e){ toast('Gagal update status — cek koneksi'); }
+
+  const now = new Date().toISOString();
+  const tlKey = 'tl_' + Date.now();
+
+  const localMap = getLocalOrderMap();
+  const targetObj = localMap[id] || allOrders[id];
+  if(targetObj){
+    targetObj.status = statusBaru;
+    targetObj.timeline = targetObj.timeline || {};
+    targetObj.timeline[tlKey] = { status: statusBaru, at: now };
+    localMap[id] = targetObj;
+    saveLocalOrderMap(localMap);
+  }
+  if(cloudOrders[id]) cloudOrders[id].status = statusBaru;
+  notifySync();
+
+  if(db){
+    try{
+      await db.ref('orders/' + id).update({
+        status: statusBaru,
+        ['timeline/' + tlKey]: { status: statusBaru, at: now }
+      });
+      if(statusBaru === 'selesai' || statusBaru === 'dibatalkan'){
+        await db.ref('couriers/' + getCid()).update({ activeOrderId: null, updatedAt: now });
+      }
+    }catch(e){}
+  }
+
+  if(statusBaru === 'selesai' || statusBaru === 'dibatalkan'){
+    activeOrderId = null;
+    toast(statusBaru === 'selesai' ? '🎉 Order Selesai! Saldo pendapatan bertambah.' : 'Order dibatalkan');
+  }else{
+    toast('Status diperbarui: ' + statusLabel(statusBaru, null));
+  }
+  gabungkanDanRenderOrders(false);
 }
 
-/* ================= Render Komponen Kartu & Beranda Dock ================= */
 function itemHtml(o){
   const s = o.service || 'barang';
   let h = '';
@@ -1154,7 +1300,7 @@ function aksiBerikutnya(o){
 
 function hitungStatistik(){
   const ids = Object.keys(allOrders);
-  const menunggu = ids.filter(id => allOrders[id].status === 'menunggu');
+  const menunggu = ids.filter(id => allOrders[id] && allOrders[id].status === 'menunggu');
   const selesaiHariIni = ids.filter(id => {
     const o = allOrders[id];
     return milikSaya(o) && o.status === 'selesai' && sameDay(o.createdAt);
@@ -1201,8 +1347,7 @@ function renderBerandaDock(){
   $('aktif-nav-links').innerHTML =
     '<a class="btn btn-map btn-sm" style="flex:1" target="_blank" href="' + gmapsDirLink(o.pickup.lat, o.pickup.lng) + '">🗺️ Rute ' + esc(m.la) + '</a>'
     + '<a class="btn btn-map btn-sm" style="flex:1" target="_blank" href="' + gmapsDirLink(o.dest.lat, o.dest.lng) + '">🏁 Rute ' + esc(m.lb) + '</a>'
-    + '<a class="btn btn-wa btn-sm" target="_blank" href="' + waLink(o.customerPhone, 'Halo Kak ' + (o.customerName||'') + ', saya driver KURIR TABIN untuk order *' + o.code + '*.') + '">💬 WA</a>'
-    + '<button class="btn btn-primary btn-sm" style="flex:1" onclick="bukaChatOrderDriver(\'' + activeOrderId + '\')">💬 Chat Customer</button>';
+    + '<a class="btn btn-wa btn-sm" target="_blank" href="' + waLink(o.customerPhone, 'Halo Kak ' + (o.customerName||'') + ', saya driver KURIR TABIN untuk order *' + o.code + '*.') + '">💬 WA</a>';
 
   const aksi = aksiBerikutnya(o);
   let h = aksi.map(a => '<button class="btn ' + a.cls + '" onclick="ubahStatus(\'' + activeOrderId + '\',\'' + a.st + '\')">' + esc(a.label) + '</button>').join('');
@@ -1225,11 +1370,11 @@ function kartuMasuk(o, id){
 
 function renderMasuk(){
   const list = urutTerbaru(Object.keys(allOrders)
-    .filter(id => allOrders[id].status === 'menunggu')
+    .filter(id => allOrders[id] && allOrders[id].status === 'menunggu')
     .map(id => ({ id, o: allOrders[id] })));
   $('masuk-list').innerHTML = list.length
     ? list.map(x => kartuMasuk(x.o, x.id)).join('')
-    : '<div class="empty">Belum ada bid order yang menunggu.<br>Pastikan status kamu <b>ON-BID</b> agar pop-up order otomatis muncul! 🛵</div>';
+    : '<div class="empty">Belum ada bid order yang menunggu.<br>Ketuk tombol <b>⚡ +Order Tes</b> di kanan atas untuk mencoba simulasi order masuk! 🛵</div>';
 }
 
 function renderRiwayat(){
@@ -1251,7 +1396,6 @@ function renderRiwayat(){
   ).join('') : '<div class="empty">Belum ada riwayat order ' + (riwPeriod === 'hari' ? 'hari ini' : '') + '.</div>';
 }
 
-/* ================= Navigasi Tab & Pengaturan ================= */
 function switchSubtab(nama){
   subtab = nama;
   ['radar','masuk','riwayat','set'].forEach(t => {
@@ -1262,6 +1406,7 @@ function switchSubtab(nama){
     initRadarMap();
     setTimeout(() => { try{ radarMap.invalidateSize(); }catch(e){} }, 180);
     renderBerandaDock();
+    lastRadarSig = '';
     updatePetaRadar();
   }
   if(nama === 'masuk') renderMasuk();
@@ -1297,7 +1442,10 @@ function simpanSettings(){
       () => { closeSheet('sheet-atur-tarif'); toast('Tarif tersimpan & berlaku di semua perangkat ✅'); },
       () => toast('Gagal menyimpan — cek koneksi')
     );
-  }else toast('Belum terhubung ke Firebase');
+  }else{
+    closeSheet('sheet-atur-tarif');
+    toast('Tarif disimpan secara lokal ✅');
+  }
   isiFormSettings(); renderTabelTarif();
 }
 function simpanProfil(){
@@ -1321,7 +1469,6 @@ function gantiPin(){
   closeSheet('sheet-pin'); toast('PIN berhasil diganti ✅');
 }
 
-/* ================= Boot ================= */
 function masukApp(){
   $('auth-view').style.display = 'none';
   $('app-view').style.display = 'block';
@@ -1338,10 +1485,10 @@ function boot(){
   const ok = initFirebase();
   if(!ok){
     $('firebase-banner').classList.add('show');
-    $('fb-status').innerHTML = '⚠️ <b>Belum terhubung ke Firebase.</b> Pastikan file <code>firebase-config.js</code> sudah diisi.';
-    $('gj-desc-fb').textContent = 'Belum terhubung ke Firebase';
+    $('fb-status').innerHTML = '⚡ <b>Mode Sinkronisasi Lokal Aktif.</b> Order dari perangkat ini otomatis terbaca. Untuk lintas HP, masukkan URL Database Firebase di bawah.';
+    $('gj-desc-fb').textContent = 'Mode Sinkronisasi Lokal';
   }else{
-    $('fb-status').innerHTML = '✅ <b>Terhubung ke Firebase Realtime Database.</b> Siap menerima bid order secara real-time.';
+    $('fb-status').innerHTML = '✅ <b>Terhubung ke Cloud Firebase Realtime Database.</b> Siap menerima bid order lintas perangkat secara real-time.';
     $('gj-desc-fb').textContent = 'Terhubung ke Cloud Firebase (Online)';
     pasangListenerTarif();
   }
@@ -1368,63 +1515,11 @@ function boot(){
   window.ubahStatus = ubahStatus;
   window.tutupModalBid = tutupModalBid;
   window.switchSubtab = switchSubtab;
-  window.bukaChatOrderDriver = bukaChatOrderDriver;
+  window.simulasiOrderMasuk = simulasiOrderMasuk;
+  window.simpanKonfigFirebaseManual = simpanKonfigFirebaseManual;
   tampilAuth();
 }
 document.addEventListener('DOMContentLoaded', boot);
-
-/* ============ CHAT ORDER (driver <-> customer, via Firebase RTDB) ============ */
-let ocOrderId = null, ocListener = null;
-function bukaChatOrderDriver(orderId){
-  const o = allOrders[orderId];
-  if(!o){ toast('Order tidak ditemukan'); return; }
-  ocOrderId = orderId;
-  $('oc-title').textContent = '💬 Chat Customer — ' + (o.customerName || 'Pelanggan');
-  $('oc-sub').textContent = 'Order ' + (o.code || orderId.slice(-6));
-  $('oc-panel').classList.add('open');
-  $('oc-panel').setAttribute('aria-hidden', 'false');
-  $('oc-body').innerHTML = '<div class="oc-empty">Memuat pesan…</div>';
-  if(ocListener && db){ try{ db.ref('chats/' + ocOrderId + '/messages').off('child_added', ocListener); }catch(e){} }
-  ocListener = snap => { const m = snap.val(); if(m) ocRenderMsgDriver(snap.key, m); };
-  if(db){
-    db.ref('chats/' + orderId + '/messages').limitToLast(50).on('child_added', ocListener);
-  } else {
-    $('oc-body').innerHTML = '<div class="oc-empty">Belum tersambung ke Firebase — chat butuh koneksi.</div>';
-  }
-}
-function ocRenderMsgDriver(key, m){
-  const body = $('oc-body');
-  if(body.querySelector('.oc-empty')) body.innerHTML = '';
-  if(body.querySelector('[data-msg="' + key + '"]')) return;
-  const d = document.createElement('div');
-  const mine = m.from === 'courier';
-  d.className = 'oc-msg ' + (mine ? 'oc-me' : 'oc-them');
-  d.setAttribute('data-msg', key);
-  d.innerHTML = '<div>' + esc(m.text || '') + '</div><div class="oc-meta">' + esc(m.fromName || (mine ? 'Saya' : 'Customer')) + ' • ' + esc(fmtTgl(m.at)) + '</div>';
-  body.appendChild(d);
-  body.scrollTop = body.scrollHeight;
-}
-function kirimChatOrderDriver(){
-  const inp = $('oc-input');
-  const text = inp.value.trim();
-  if(!text || !ocOrderId) return;
-  if(!db){ toast('Belum tersambung ke Firebase'); return; }
-  const a = getAuth() || {};
-  const nama = a.name || 'Driver';
-  inp.value = '';
-  db.ref('chats/' + ocOrderId + '/messages').push({
-    from: 'courier', fromName: nama, text: text.slice(0, 500), at: new Date().toISOString()
-  }).catch(() => toast('Gagal mengirim pesan — cek koneksi'));
-}
-function tutupChatOrderDriver(){
-  $('oc-panel').classList.remove('open');
-  $('oc-panel').setAttribute('aria-hidden', 'true');
-  if(ocListener && db && ocOrderId){ try{ db.ref('chats/' + ocOrderId + '/messages').off('child_added', ocListener); }catch(e){} }
-  ocOrderId = null; ocListener = null;
-}
-$('oc-close').addEventListener('click', tutupChatOrderDriver);
-$('oc-send').addEventListener('click', kirimChatOrderDriver);
-$('oc-input').addEventListener('keydown', e => { if(e.key === 'Enter') kirimChatOrderDriver(); });
 </script>
 </body>
 </html>
